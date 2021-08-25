@@ -3,6 +3,7 @@ import { FileRejection, useDropzone } from "react-dropzone";
 import { Button, CircularProgress, Typography } from "@material-ui/core";
 import JSZip from "jszip";
 import axios from "axios";
+import dicomParser from "dicom-parser";
 
 interface UploadProps {
   setInUploadView: Dispatch<SetStateAction<boolean>>;
@@ -11,9 +12,17 @@ interface UploadProps {
 export default function Upload({ setInUploadView }: UploadProps) {
   const [files, setFiles] = useState<File[]>([]);
   const [showProgress, setShowProgress] = useState(false);
+  const [ct, setCt] = useState(false);
+  const [rtstruct, setRtstruct] = useState(false);
+  const [rtdose, setRtDose] = useState(false);
+  let studyUid = "";
+
   const onDrop = useCallback(
     (acceptedFiles: File[], rejectedFiles: FileRejection[]) => {
       setFiles((curr) => [...curr, ...acceptedFiles]);
+      acceptedFiles.every((file) => {
+        return parse(file);
+      });
       if (rejectedFiles.length > 0)
         alert(
           "Invalid files were omitted: " +
@@ -26,6 +35,46 @@ export default function Upload({ setInUploadView }: UploadProps) {
     onDrop,
     accept: ".dcm",
   });
+
+  const parse = (file: File): boolean => {
+    file.arrayBuffer().then((arrayBuffer) => {
+      const byteArray = new Uint8Array(arrayBuffer);
+
+      try {
+        const dataSet = dicomParser.parseDicom(byteArray /*, options */);
+        const studyInstanceUid = dataSet.string("x0020000d");
+        if (studyUid !== studyInstanceUid) {
+          if (studyUid === "") studyUid = studyInstanceUid;
+          else {
+            alert("Files studyInstanceUid doesn't match. Files will be reset!");
+            setFiles([]);
+            setCt(false);
+            setRtDose(false);
+            setRtstruct(false);
+            studyUid = "";
+            return false;
+          }
+        }
+        const modality = dataSet.string("x00080060");
+        switch (modality) {
+          case "CT":
+            setCt(true);
+            break;
+          case "RTSTRUCT":
+            setRtstruct(true);
+            break;
+          case "RTDOSE":
+            setRtDose(true);
+            break;
+          default:
+            console.log(modality);
+        }
+      } catch (ex) {
+        console.log("Error parsing byte stream", ex);
+      }
+    });
+    return true;
+  };
 
   const zipAndUpload = () => {
     setShowProgress(true);
@@ -49,6 +98,12 @@ export default function Upload({ setInUploadView }: UploadProps) {
 
   return (
     <>
+      {(!ct || !rtstruct || !rtdose) && <h2>Add:</h2>}
+      <ul style={{ listStylePosition: "inside" }}>
+        {!ct && <li>CT</li>}
+        {!rtstruct && <li>RTSTRUCT </li>}
+        {!rtdose && <li>RTDOSE </li>}
+      </ul>
       <div
         {...getRootProps()}
         style={{
@@ -68,7 +123,7 @@ export default function Upload({ setInUploadView }: UploadProps) {
         {showProgress && <CircularProgress />}
       </div>
       <Button
-        disabled={files.length < 1}
+        disabled={files.length < 1 || !ct || !rtdose || !rtstruct}
         variant="contained"
         onClick={zipAndUpload}
       >
