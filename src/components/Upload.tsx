@@ -5,11 +5,7 @@ import JSZip from "jszip";
 import axios from "axios";
 import dicomParser from "dicom-parser";
 
-interface UploadProps {
-  setInUploadView: Dispatch<SetStateAction<boolean>>;
-}
-
-export default function Upload({ setInUploadView }: UploadProps) {
+export default function Upload() {
   const [files, setFiles] = useState<File[]>([]);
   const [showProgress, setShowProgress] = useState(false);
   const [ct, setCt] = useState(false);
@@ -87,7 +83,6 @@ export default function Upload({ setInUploadView }: UploadProps) {
         .post("http://127.0.0.1:5000/upload", formData)
         .then((response) => {
           alert(response.data);
-          setInUploadView(false);
         })
         .catch((error) => {
           setShowProgress(false);

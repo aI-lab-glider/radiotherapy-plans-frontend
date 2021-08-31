@@ -1,4 +1,4 @@
-import React, { Suspense } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 import { useLoader } from "@react-three/fiber";
@@ -9,9 +9,37 @@ const Model = () => {
   return <primitive object={obj} scale={0.6} position={[0, -1.5, 0]} />;
 };
 
-export default function ThreeCanvas() {
+interface ThreeCanvasProps {
+  appBarHeight: number;
+}
+
+export default function ThreeCanvas({ appBarHeight }: ThreeCanvasProps) {
+  const [dimensions, setDimensions] = useState({
+    height: window.innerHeight,
+    width: window.innerWidth,
+  });
+
+  useEffect(() => {
+    function handleResize() {
+      setDimensions({
+        height: window.innerHeight,
+        width: window.innerWidth,
+      });
+    }
+    window.addEventListener("resize", handleResize);
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  });
+
   return (
-    <Canvas style={{ backgroundColor: "#333333", height: window.innerHeight }}>
+    <Canvas
+      style={{
+        backgroundColor: "#333333",
+        width: `${dimensions.width}px`,
+        height: `${dimensions.height - appBarHeight}px`,
+      }}
+    >
       <Suspense fallback={null}>
         <ambientLight intensity={0.2} />
         <pointLight position={[10, 10, 10]} />
