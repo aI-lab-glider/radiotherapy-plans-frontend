@@ -1,4 +1,10 @@
-import React, { Dispatch, SetStateAction, useCallback, useState } from "react";
+import React, {
+  Dispatch,
+  SetStateAction,
+  useCallback,
+  useRef,
+  useState,
+} from "react";
 import { FileRejection, useDropzone } from "react-dropzone";
 import { Button, CircularProgress, Typography } from "@material-ui/core";
 import JSZip from "jszip";
@@ -8,24 +14,26 @@ import BasicSettings from "./BasicSettings";
 import RegionSettings from "./RegionSettings";
 import Divider from "@material-ui/core/Divider";
 
-export default function Upload() {
-  const [files, setFiles] = useState<File[]>([]);
+interface UploadProps {
+  setInUploadView: Dispatch<SetStateAction<boolean>>;
+}
+
+export default function Upload({ setInUploadView }: UploadProps) {
+  const [ctFiles, setCtFiles] = useState<File[]>([]);
+  const [rtstructFiles, setRtstructFiles] = useState<File[]>([]);
+  const [rtdoseFiles, setRtdoseFiles] = useState<File[]>([]);
   const [showProgress, setShowProgress] = useState(false);
-  const [ct, setCt] = useState(false);
-  const [rtstruct, setRtstruct] = useState(false);
-  const [rtdose, setRtDose] = useState(false);
-  let studyUid = "";
+  const studyUid = useRef("");
 
   const onDrop = useCallback(
     (acceptedFiles: File[], rejectedFiles: FileRejection[]) => {
-      setFiles((curr) => [...curr, ...acceptedFiles]);
       acceptedFiles.every((file) => {
         return parse(file);
       });
       if (rejectedFiles.length > 0)
         alert(
           "Invalid files were omitted: " +
-            rejectedFiles.map((fileWrapper) => `\n${fileWrapper.file.name}`)
+          rejectedFiles.map((fileWrapper) => `\n${fileWrapper.file.name}`)
         );
     },
     []
@@ -42,28 +50,27 @@ export default function Upload() {
       try {
         const dataSet = dicomParser.parseDicom(byteArray /*, options */);
         const studyInstanceUid = dataSet.string("x0020000d");
-        if (studyUid !== studyInstanceUid) {
-          if (studyUid === "") studyUid = studyInstanceUid;
+        if (studyUid.current !== studyInstanceUid) {
+          if (studyUid.current === "") studyUid.current = studyInstanceUid;
           else {
             alert("Files studyInstanceUid doesn't match. Files will be reset!");
-            setFiles([]);
-            setCt(false);
-            setRtDose(false);
-            setRtstruct(false);
-            studyUid = "";
+            setCtFiles([]);
+            setRtdoseFiles([]);
+            setRtstructFiles([]);
+            studyUid.current = "";
             return false;
           }
         }
         const modality = dataSet.string("x00080060");
         switch (modality) {
           case "CT":
-            setCt(true);
+            setCtFiles((curr) => [...curr, file]);
             break;
           case "RTSTRUCT":
-            setRtstruct(true);
+            setRtstructFiles((curr) => [...curr, file]);
             break;
           case "RTDOSE":
-            setRtDose(true);
+            setRtdoseFiles((curr) => [...curr, file]);
             break;
           default:
             console.log(modality);
@@ -78,7 +85,12 @@ export default function Upload() {
   const zipAndUpload = () => {
     setShowProgress(true);
     const zip = new JSZip();
-    files.map((file, index) => zip.file(`${index}.dcm`, file));
+    const ct = zip.folder("ct");
+    const rtdose = zip.folder("rtdose");
+    const rtstruct = zip.folder("rtstruct");
+    ctFiles.map((file, index) => ct?.file(`${index}.dcm`, file));
+    rtdoseFiles.map((file, index) => rtdose?.file(`${index}.dcm`, file));
+    rtstructFiles.map((file, index) => rtstruct?.file(`${index}.dcm`, file));
     zip.generateAsync({ type: "blob" }).then((file) => {
       const formData = new FormData();
       formData.append("file", file, "archive.zip");
@@ -96,11 +108,13 @@ export default function Upload() {
 
   return (
     <>
-      {(!ct || !rtstruct || !rtdose) && <h2>Add:</h2>}
+      {(!ctFiles.length || !rtstructFiles.length || !rtdoseFiles.length) && (
+        <h2>Add:</h2>
+      )}
       <ul style={{ listStylePosition: "inside" }}>
-        {!ct && <li>CT</li>}
-        {!rtstruct && <li>RTSTRUCT </li>}
-        {!rtdose && <li>RTDOSE </li>}
+        {!ctFiles.length && <li>CT</li>}
+        {!rtstructFiles.length && <li>RTSTRUCT </li>}
+        {!rtdoseFiles.length && <li>RTDOSE </li>}
       </ul>
       <div
         {...getRootProps()}
@@ -115,13 +129,17 @@ export default function Upload() {
         <p>Drag 'n' drop some files here, or click to select files</p>
       </div>
       <Typography display="block">
-        {files.map((file) => `*${file.name}* `)}
+        {rtdoseFiles.map((file) => `*${file.name}* `)}
+        {rtstructFiles.map((file) => `*${file.name}* `)}
+        {ctFiles.map((file) => `*${file.name}* `)}
       </Typography>
       <div style={{ margin: 10, display: "flex", justifyContent: "center" }}>
         {showProgress && <CircularProgress />}
       </div>
       <Button
-        disabled={files.length < 1 || !ct || !rtdose || !rtstruct}
+        disabled={
+          !ctFiles.length || !rtdoseFiles.length || !rtstructFiles.length
+        }
         variant="contained"
         onClick={zipAndUpload}
       >
