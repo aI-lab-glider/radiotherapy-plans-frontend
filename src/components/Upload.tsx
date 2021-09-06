@@ -15,7 +15,53 @@ export default function Upload({ setInUploadView }: UploadProps) {
   const [ct, setCt] = useState(false);
   const [rtstruct, setRtstruct] = useState(false);
   const [rtdose, setRtDose] = useState(false);
-  let studyUid = "";
+
+  // TODO: move to custom hook.
+  const parse = useCallback(
+    (file: File): boolean => {
+      let studyUid = "";
+      file.arrayBuffer().then((arrayBuffer) => {
+        const byteArray = new Uint8Array(arrayBuffer);
+
+        try {
+          const dataSet = dicomParser.parseDicom(byteArray /*, options */);
+          const studyInstanceUid = dataSet.string("x0020000d");
+          if (studyUid !== studyInstanceUid) {
+            if (studyUid === "") studyUid = studyInstanceUid;
+            else {
+              alert(
+                "Files studyInstanceUid doesn't match. Files will be reset!"
+              );
+              setFiles([]);
+              setCt(false);
+              setRtDose(false);
+              setRtstruct(false);
+              studyUid = "";
+              return false;
+            }
+          }
+          const modality = dataSet.string("x00080060");
+          switch (modality) {
+            case "CT":
+              setCt(true);
+              break;
+            case "RTSTRUCT":
+              setRtstruct(true);
+              break;
+            case "RTDOSE":
+              setRtDose(true);
+              break;
+            default:
+              console.log(modality);
+          }
+        } catch (ex) {
+          console.log("Error parsing byte stream", ex);
+        }
+      });
+      return true;
+    },
+    [setFiles, setCt, setRtDose]
+  );
 
   const onDrop = useCallback(
     (acceptedFiles: File[], rejectedFiles: FileRejection[]) => {
@@ -29,52 +75,12 @@ export default function Upload({ setInUploadView }: UploadProps) {
             rejectedFiles.map((fileWrapper) => `\n${fileWrapper.file.name}`)
         );
     },
-    []
+    [parse]
   );
   const { getRootProps, getInputProps } = useDropzone({
     onDrop,
     accept: ".dcm",
   });
-
-  const parse = (file: File): boolean => {
-    file.arrayBuffer().then((arrayBuffer) => {
-      const byteArray = new Uint8Array(arrayBuffer);
-
-      try {
-        const dataSet = dicomParser.parseDicom(byteArray /*, options */);
-        const studyInstanceUid = dataSet.string("x0020000d");
-        if (studyUid !== studyInstanceUid) {
-          if (studyUid === "") studyUid = studyInstanceUid;
-          else {
-            alert("Files studyInstanceUid doesn't match. Files will be reset!");
-            setFiles([]);
-            setCt(false);
-            setRtDose(false);
-            setRtstruct(false);
-            studyUid = "";
-            return false;
-          }
-        }
-        const modality = dataSet.string("x00080060");
-        switch (modality) {
-          case "CT":
-            setCt(true);
-            break;
-          case "RTSTRUCT":
-            setRtstruct(true);
-            break;
-          case "RTDOSE":
-            setRtDose(true);
-            break;
-          default:
-            console.log(modality);
-        }
-      } catch (ex) {
-        console.log("Error parsing byte stream", ex);
-      }
-    });
-    return true;
-  };
 
   const zipAndUpload = () => {
     setShowProgress(true);
