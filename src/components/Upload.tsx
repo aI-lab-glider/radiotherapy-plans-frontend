@@ -4,6 +4,9 @@ import { Button, CircularProgress, Typography } from "@material-ui/core";
 import JSZip from "jszip";
 import axios from "axios";
 import dicomParser from "dicom-parser";
+import BasicSettings from "./BasicSettings";
+import RegionSettings from "./RegionSettings";
+import Divider from "@material-ui/core/Divider";
 
 export default function Upload() {
   const [files, setFiles] = useState<File[]>([]);
@@ -124,6 +127,11 @@ export default function Upload() {
       >
         Zip And Upload
       </Button>
+
+      {/* It will be added to 2nd view */}
+      <BasicSettings />
+      <Divider />
+      <RegionSettings />
     </>
   );
 }
