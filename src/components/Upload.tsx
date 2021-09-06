@@ -4,12 +4,11 @@ import { Button, CircularProgress, Typography } from "@material-ui/core";
 import JSZip from "jszip";
 import axios from "axios";
 import dicomParser from "dicom-parser";
+import BasicSettings from "./BasicSettings";
+import RegionSettings from "./RegionSettings";
+import Divider from "@material-ui/core/Divider";
 
-interface UploadProps {
-  setInUploadView: Dispatch<SetStateAction<boolean>>;
-}
-
-export default function Upload({ setInUploadView }: UploadProps) {
+export default function Upload() {
   const [files, setFiles] = useState<File[]>([]);
   const [showProgress, setShowProgress] = useState(false);
   const [ct, setCt] = useState(false);
@@ -87,7 +86,6 @@ export default function Upload({ setInUploadView }: UploadProps) {
         .post("http://127.0.0.1:5000/upload", formData)
         .then((response) => {
           alert(response.data);
-          setInUploadView(false);
         })
         .catch((error) => {
           setShowProgress(false);
@@ -129,6 +127,11 @@ export default function Upload({ setInUploadView }: UploadProps) {
       >
         Zip And Upload
       </Button>
+
+      {/* It will be added to 2nd view */}
+      <BasicSettings />
+      <Divider />
+      <RegionSettings />
     </>
   );
 }
