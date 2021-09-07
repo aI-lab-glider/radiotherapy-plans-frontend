@@ -139,7 +139,7 @@ export default function Upload() {
       {/* It will be added to 2nd view */}
       <BasicSettings />
       <Divider />
-      <RegionSettings />
+      <RegionSettings regions={[]} selectableRegions={["maxilla", "jawbone"]} />
     </>
   );
 }
