@@ -1,24 +1,14 @@
-import React, {
-  Dispatch,
-  SetStateAction,
-  useCallback,
-  useRef,
-  useState,
-} from "react";
-import { FileRejection, useDropzone } from "react-dropzone";
 import { Button, CircularProgress, Typography } from "@material-ui/core";
-import JSZip from "jszip";
+import Divider from "@material-ui/core/Divider";
 import axios from "axios";
 import dicomParser from "dicom-parser";
+import JSZip from "jszip";
+import React, { useCallback, useRef, useState } from "react";
+import { FileRejection, useDropzone } from "react-dropzone";
 import BasicSettings from "./BasicSettings";
 import RegionSettings from "./RegionSettings";
-import Divider from "@material-ui/core/Divider";
 
-interface UploadProps {
-  setInUploadView: Dispatch<SetStateAction<boolean>>;
-}
-
-export default function Upload({ setInUploadView }: UploadProps) {
+export default function Upload() {
   const [ctFiles, setCtFiles] = useState<File[]>([]);
   const [rtstructFiles, setRtstructFiles] = useState<File[]>([]);
   const [rtdoseFiles, setRtdoseFiles] = useState<File[]>([]);
@@ -33,7 +23,7 @@ export default function Upload({ setInUploadView }: UploadProps) {
       if (rejectedFiles.length > 0)
         alert(
           "Invalid files were omitted: " +
-          rejectedFiles.map((fileWrapper) => `\n${fileWrapper.file.name}`)
+            rejectedFiles.map((fileWrapper) => `\n${fileWrapper.file.name}`)
         );
     },
     []
