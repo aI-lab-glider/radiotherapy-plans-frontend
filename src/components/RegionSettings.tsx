@@ -6,27 +6,38 @@ import Button from "@material-ui/core/Button";
 import Card from "@material-ui/core/Card";
 import CardActions from "@material-ui/core/CardActions";
 import CardContent from "@material-ui/core/CardContent";
-import RadioButtonCheckedIcon from "@material-ui/icons/RadioButtonChecked";
-import RadioButtonUncheckedIcon from "@material-ui/icons/RadioButtonUnchecked";
 import MenuItem from "@material-ui/core/MenuItem";
 import FormControl from "@material-ui/core/FormControl";
 import Select from "@material-ui/core/Select";
-import ContinuousSlider from "./Slider";
+import { Slider } from "@material-ui/core";
+import ColorPicker from "./ColorPicker";
+import { RGBColor } from "react-color";
 
-export default function RegionSettings() {
-  const [regions, setRegions] = React.useState<
-    Array<{
-      id: string;
-      type: string;
-      transparency: number;
-      activated: boolean;
-    }>
-  >([]);
+interface Region {
+  id: string;
+  type: string;
+  transparency: number;
+  color: RGBColor;
+  activated: boolean;
+}
 
+interface RegionSettingsProps {
+  regions: Array<Region>;
+  selectableRegions: Array<string>;
+}
+
+export default function RegionSettings(props: RegionSettingsProps) {
+  const [regions, setRegions] = React.useState<Array<Region>>(props.regions);
   const addNewRegion = (e: MouseEvent<HTMLButtonElement>) => {
     setRegions([
       ...regions,
-      { type: "None", transparency: 50, activated: false, id: uuidv4() },
+      {
+        type: "None",
+        transparency: 50,
+        color: { r: 225, g: 68, b: 13, a: 1 },
+        activated: false,
+        id: uuidv4(),
+      },
     ]);
   };
 
@@ -61,6 +72,20 @@ export default function RegionSettings() {
     setRegions(newRegions);
   };
 
+  const handleTransparencyChange = (id: string, newValue: any) => {
+    const newRegions = regions.map((r) =>
+      r.id === id ? { ...r, transparency: newValue } : r
+    );
+    setRegions(newRegions);
+  };
+
+  function handleColorChange(id: string, newColor: RGBColor) {
+    const newRegions = regions.map((r) =>
+      r.id === id ? { ...r, color: newColor } : r
+    );
+    setRegions(newRegions);
+  }
+
   return (
     <div style={{ width: 320, padding: 20 }}>
       <Typography>
@@ -70,15 +95,18 @@ export default function RegionSettings() {
         {regions &&
           regions.map((region) => {
             return (
-              <Card style={{ margin: 10 }} variant="outlined">
+              <Card style={{ marginBottom: 10 }} variant="outlined">
                 <CardContent>
                   <Grid container xs={12} spacing={2}>
-                    <Grid>
-                      <Typography component="h1" style={{ marginTop: 4 }}>
+                    <Grid item xs={3}>
+                      <Typography
+                        component="h1"
+                        style={{ marginTop: 4, fontWeight: 600 }}
+                      >
                         Region:&nbsp;
                       </Typography>
                     </Grid>
-                    <Grid>
+                    <Grid item xs={3}>
                       {region.activated ? (
                         <Typography component="h1" style={{ marginTop: 4 }}>
                           {region.type}
@@ -99,17 +127,40 @@ export default function RegionSettings() {
                             <MenuItem value="None">
                               <em>None</em>
                             </MenuItem>
-                            <MenuItem value="maxilla">maxilla</MenuItem>
-                            <MenuItem value="jawbone">jawbone</MenuItem>
+                            {props.selectableRegions.map((x) => (
+                              <MenuItem value={x}>{x}</MenuItem>
+                            ))}
                           </Select>
                         </FormControl>
                       )}
                     </Grid>
                   </Grid>
-                  <ContinuousSlider
-                    title="Transparency"
-                    leftIcon={<RadioButtonCheckedIcon />}
-                    rightIcon={<RadioButtonUncheckedIcon />}
+                  <Grid container xs={12} spacing={2} style={{ marginTop: 10 }}>
+                    <Grid item xs={3}>
+                      <Typography component="h2" style={{ fontWeight: 600 }}>
+                        Color
+                      </Typography>
+                    </Grid>
+                    <Grid item xs={3}>
+                      <ColorPicker
+                        regionId={region.id}
+                        color={region.color}
+                        onChange={handleColorChange}
+                      />
+                    </Grid>
+                  </Grid>
+                  <Typography
+                    component="h2"
+                    style={{ marginTop: 20, fontWeight: 600 }}
+                  >
+                    Transparency
+                  </Typography>
+                  <Slider
+                    value={region.transparency}
+                    onChange={(event, newValue) =>
+                      handleTransparencyChange(region.id, newValue)
+                    }
+                    aria-labelledby="continuous-slider"
                   />
                 </CardContent>
                 <CardActions>
