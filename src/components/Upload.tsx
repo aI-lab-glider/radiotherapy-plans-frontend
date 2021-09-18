@@ -1,17 +1,47 @@
 import { Button, CircularProgress, Typography } from "@material-ui/core";
-import Divider from "@material-ui/core/Divider";
 import axios from "axios";
 import dicomParser from "dicom-parser";
 import JSZip from "jszip";
-import React, { useCallback, useRef, useState } from "react";
+import React, { useCallback, useReducer, useRef, useState } from "react";
 import { FileRejection, useDropzone } from "react-dropzone";
-import BasicSettings from "./BasicSettings";
-import RegionSettings from "./RegionSettings";
+
+interface State {
+  ctFiles: File[];
+  rtStructFile: File[];
+  rtDoseFile: File[];
+}
+
+const initialState: State = { ctFiles: [], rtStructFile: [], rtDoseFile: [] };
+
+enum ActionType {
+  CT = "CT",
+  DOSE = "RTDOSE",
+  STRUCT = "RTSTRUCT",
+  RESET = "RESET",
+}
+
+interface Action {
+  type: ActionType | string;
+  payload?: File;
+}
+
+function reducer(state: State, action: Action): State {
+  switch (action.type) {
+    case ActionType.CT:
+      return { ...state, ctFiles: [...state.ctFiles, action.payload!] };
+    case ActionType.DOSE:
+      return { ...state, rtDoseFile: [action.payload!] };
+    case ActionType.STRUCT:
+      return { ...state, rtStructFile: [action.payload!] };
+    case ActionType.RESET:
+      return initialState;
+    default:
+      return state;
+  }
+}
 
 export default function Upload() {
-  const [ctFiles, setCtFiles] = useState<File[]>([]);
-  const [rtstructFiles, setRtstructFiles] = useState<File[]>([]);
-  const [rtdoseFiles, setRtdoseFiles] = useState<File[]>([]);
+  const [state, dispatch] = useReducer(reducer, initialState);
   const [showProgress, setShowProgress] = useState(false);
   const studyUid = useRef("");
 
@@ -44,27 +74,13 @@ export default function Upload() {
           if (studyUid.current === "") studyUid.current = studyInstanceUid;
           else {
             alert("Files studyInstanceUid doesn't match. Files will be reset!");
-            setCtFiles([]);
-            setRtdoseFiles([]);
-            setRtstructFiles([]);
+            dispatch({ type: ActionType.RESET });
             studyUid.current = "";
             return false;
           }
         }
         const modality = dataSet.string("x00080060");
-        switch (modality) {
-          case "CT":
-            setCtFiles((curr) => [...curr, file]);
-            break;
-          case "RTSTRUCT":
-            setRtstructFiles((curr) => [...curr, file]);
-            break;
-          case "RTDOSE":
-            setRtdoseFiles((curr) => [...curr, file]);
-            break;
-          default:
-            console.log(modality);
-        }
+        dispatch({ type: modality, payload: file });
       } catch (ex) {
         console.log("Error parsing byte stream", ex);
       }
@@ -75,18 +91,21 @@ export default function Upload() {
   const zipAndUpload = () => {
     setShowProgress(true);
     const zip = new JSZip();
-    const ct = zip.folder("ct");
-    const rtdose = zip.folder("rtdose");
-    const rtstruct = zip.folder("rtstruct");
-    ctFiles.map((file, index) => ct?.file(`${index}.dcm`, file));
-    rtdoseFiles.map((file, index) => rtdose?.file(`${index}.dcm`, file));
-    rtstructFiles.map((file, index) => rtstruct?.file(`${index}.dcm`, file));
+    Object.entries(state).forEach(([name, files]) => {
+      const folder = zip.folder(name);
+      files.forEach((file: File, index: number) =>
+        folder!.file(`${index}.dcm`, file)
+      );
+    });
+
     zip.generateAsync({ type: "blob" }).then((file) => {
       const formData = new FormData();
       formData.append("file", file, "archive.zip");
       axios
         .post("http://127.0.0.1:5000/upload", formData)
         .then((response) => {
+          dispatch({ type: ActionType.RESET });
+          setShowProgress(false);
           alert(response.data);
         })
         .catch((error) => {
@@ -98,13 +117,15 @@ export default function Upload() {
 
   return (
     <>
-      {(!ctFiles.length || !rtstructFiles.length || !rtdoseFiles.length) && (
+      {Object.values(state).some((value) => value.length === 0) && (
         <h2>Add:</h2>
       )}
       <ul style={{ listStylePosition: "inside" }}>
-        {!ctFiles.length && <li>CT</li>}
-        {!rtstructFiles.length && <li>RTSTRUCT </li>}
-        {!rtdoseFiles.length && <li>RTDOSE </li>}
+        {Object.entries(state)
+          .filter(([key, value]) => value.length === 0)
+          .map(([key, value]) => (
+            <li> {key} </li>
+          ))}
       </ul>
       <div
         {...getRootProps()}
@@ -119,27 +140,20 @@ export default function Upload() {
         <p>Drag 'n' drop some files here, or click to select files</p>
       </div>
       <Typography display="block">
-        {rtdoseFiles.map((file) => `*${file.name}* `)}
-        {rtstructFiles.map((file) => `*${file.name}* `)}
-        {ctFiles.map((file) => `*${file.name}* `)}
+        {Object.values(state).map((files) =>
+          files.map((file: File) => `*${file.name}*`)
+        )}
       </Typography>
       <div style={{ margin: 10, display: "flex", justifyContent: "center" }}>
         {showProgress && <CircularProgress />}
       </div>
       <Button
-        disabled={
-          !ctFiles.length || !rtdoseFiles.length || !rtstructFiles.length
-        }
+        disabled={Object.values(state).some((files) => files.length === 0)}
         variant="contained"
         onClick={zipAndUpload}
       >
         Zip And Upload
       </Button>
-
-      {/* It will be added to 2nd view */}
-      <BasicSettings />
-      <Divider />
-      <RegionSettings regions={[]} selectableRegions={["maxilla", "jawbone"]} />
     </>
   );
 }

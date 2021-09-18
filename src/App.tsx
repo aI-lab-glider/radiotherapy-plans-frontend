@@ -11,6 +11,8 @@ import MenuIcon from "@material-ui/icons/Menu";
 import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
 import ThreeCanvas from "./components/ThreeCanvas";
 import Upload from "./components/Upload";
+import BasicSettings from "./components/BasicSettings";
+import RegionSettings from "./components/RegionSettings";
 
 const drawerWidth = 360;
 const appBarHeight = 60;
@@ -122,6 +124,12 @@ export default function App() {
         <Divider />
 
         <Upload />
+        <BasicSettings />
+        <Divider />
+        <RegionSettings
+          regions={[]}
+          selectableRegions={["maxilla", "jawbone"]}
+        />
       </Drawer>
 
       <div className={classes.header} />
