@@ -1,6 +1,6 @@
 import React from "react";
 import clsx from "clsx";
-import { makeStyles, Theme, createStyles } from "@material-ui/core/styles";
+import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
 import Drawer from "@material-ui/core/Drawer";
 import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
@@ -12,7 +12,7 @@ import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
 import ThreeCanvas from "./components/ThreeCanvas";
 import Upload from "./components/Upload";
 import BasicSettings from "./components/BasicSettings";
-import RegionSettings from "./components/RegionSettings";
+import RegionSettings, { Region } from "./components/RegionSettings";
 
 const drawerWidth = 360;
 const appBarHeight = 60;
@@ -74,6 +74,9 @@ const useStyles = makeStyles((theme: Theme) =>
 export default function App() {
   const classes = useStyles();
   const [open, setOpen] = React.useState(true);
+  const [brightness, setBrightness] = React.useState(50);
+  const [cut, setCut] = React.useState(0);
+  const [regions, setRegions] = React.useState<Array<Region>>([]);
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -124,16 +127,32 @@ export default function App() {
         <Divider />
 
         <Upload />
-        <BasicSettings />
+        <BasicSettings
+          brightness={brightness}
+          cut={cut}
+          onBrightnessChange={(event, newValue) =>
+            setBrightness(newValue as number)
+          }
+          onCutChange={(event, newValue) => setCut(newValue as number)}
+        />
         <Divider />
         <RegionSettings
-          regions={[]}
+          regions={regions}
           selectableRegions={["maxilla", "jawbone"]}
+          onRegionsChange={(regions) => {
+            setRegions(regions);
+            console.log(regions[0].transparency);
+          }}
         />
       </Drawer>
 
       <div className={classes.header} />
-      <ThreeCanvas appBarHeight={appBarHeight} />
+      <ThreeCanvas
+        appBarHeight={appBarHeight}
+        colorIntensity={brightness / 100}
+        opacity={regions.length > 0 ? regions[0].transparency / 100 : 0.8}
+        radius={cut / 50}
+      />
     </div>
   );
 }

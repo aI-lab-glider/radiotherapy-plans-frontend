@@ -7,19 +7,17 @@ type SliderProps = {
   title: string;
   leftIcon: SVGProps<SVGElement>;
   rightIcon: SVGProps<SVGElement>;
+  value: number;
+  onValueChange: (event: unknown, newValue: number | number[]) => void;
 };
 
 export default function ContinuousSlider({
   title,
   leftIcon,
   rightIcon,
+  value,
+  onValueChange,
 }: SliderProps) {
-  const [value, setValue] = React.useState<number>(50);
-
-  const handleChange = (event: unknown, newValue: number | number[]) => {
-    setValue(newValue as number);
-  };
-
   return (
     <div>
       <Typography id="continuous-slider" gutterBottom>
@@ -30,7 +28,7 @@ export default function ContinuousSlider({
         <Grid item xs>
           <Slider
             value={value}
-            onChange={handleChange}
+            onChange={onValueChange}
             aria-labelledby="continuous-slider"
           />
         </Grid>

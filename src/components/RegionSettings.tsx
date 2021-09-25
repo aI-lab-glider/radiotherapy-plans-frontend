@@ -14,7 +14,7 @@ import ColorPicker from "./ColorPicker";
 import { RGBColor } from "react-color";
 import styled from "styled-components";
 
-interface Region {
+export interface Region {
   id: string;
   type: string;
   transparency: number;
@@ -25,6 +25,7 @@ interface Region {
 interface RegionSettingsProps {
   regions: Array<Region>;
   selectableRegions: Array<string>;
+  onRegionsChange: (regions: Array<Region>) => void;
 }
 
 export default function RegionSettings(props: RegionSettingsProps) {
@@ -78,6 +79,7 @@ export default function RegionSettings(props: RegionSettingsProps) {
       r.id === id ? { ...r, transparency: newValue } : r
     );
     setRegions(newRegions);
+    props.onRegionsChange(newRegions);
   };
 
   function handleColorChange(id: string, newColor: RGBColor) {
