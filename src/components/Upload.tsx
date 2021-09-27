@@ -4,6 +4,7 @@ import dicomParser from "dicom-parser";
 import JSZip from "jszip";
 import React, { useCallback, useReducer, useRef, useState } from "react";
 import { FileRejection, useDropzone } from "react-dropzone";
+import styled from "styled-components";
 
 interface State {
   ctFiles: File[];
@@ -115,18 +116,28 @@ export default function Upload() {
     });
   };
 
+  const StyledList = styled.ul`
+    list-style-position: inside;
+  `;
+
+  const ProgressDiv = styled.div`
+    margin: 10px;
+    display: flex;
+    justify-content: center;
+  `;
+
   return (
     <>
       {Object.values(state).some((value) => value.length === 0) && (
         <h2>Add:</h2>
       )}
-      <ul style={{ listStylePosition: "inside" }}>
+      <StyledList>
         {Object.entries(state)
           .filter(([key, value]) => value.length === 0)
           .map(([key, value]) => (
             <li> {key} </li>
           ))}
-      </ul>
+      </StyledList>
       <div
         {...getRootProps()}
         style={{
@@ -144,9 +155,7 @@ export default function Upload() {
           files.map((file: File) => `*${file.name}*`)
         )}
       </Typography>
-      <div style={{ margin: 10, display: "flex", justifyContent: "center" }}>
-        {showProgress && <CircularProgress />}
-      </div>
+      <ProgressDiv>{showProgress && <CircularProgress />}</ProgressDiv>
       <Button
         disabled={Object.values(state).some((files) => files.length === 0)}
         variant="contained"

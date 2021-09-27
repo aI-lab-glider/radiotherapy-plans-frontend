@@ -12,6 +12,7 @@ import Select from "@material-ui/core/Select";
 import { Slider } from "@material-ui/core";
 import ColorPicker from "./ColorPicker";
 import { RGBColor } from "react-color";
+import styled from "styled-components";
 
 interface Region {
   id: string;
@@ -86,8 +87,37 @@ export default function RegionSettings(props: RegionSettingsProps) {
     setRegions(newRegions);
   }
 
+  const RegionSettingsDiv = styled.div`
+    width: 320px;
+    padding: 20px;
+  `;
+
+  const RegionSettingCard = styled(Card)`
+    margin-bottom: 10px;
+  `;
+
+  const RegionTitle = styled.h1`
+    margin-top: 4px;
+    font-size: 1em;
+    font-weight: bold;
+  `;
+
+  const RegionName = styled.h1`
+    margin-top: 4px;
+    font-size: 1em;
+  `;
+
+  const RegionProperty = styled.h1`
+    font-size: 1em;
+    font-weight: bold;
+  `;
+
+  const RegionPropertiesGrid = styled(Grid)`
+    margin-top: 10px;
+  `;
+
   return (
-    <div style={{ width: 320, padding: 20 }}>
+    <RegionSettingsDiv>
       <Typography>
         <h2>Region Settings</h2>
       </Typography>
@@ -95,22 +125,15 @@ export default function RegionSettings(props: RegionSettingsProps) {
         {regions &&
           regions.map((region) => {
             return (
-              <Card style={{ marginBottom: 10 }} variant="outlined">
+              <RegionSettingCard variant="outlined">
                 <CardContent>
                   <Grid container xs={12} spacing={2}>
                     <Grid item xs={3}>
-                      <Typography
-                        component="h1"
-                        style={{ marginTop: 4, fontWeight: 600 }}
-                      >
-                        Region:&nbsp;
-                      </Typography>
+                      <RegionTitle>Region:&nbsp;</RegionTitle>
                     </Grid>
                     <Grid item xs={3}>
                       {region.activated ? (
-                        <Typography component="h1" style={{ marginTop: 4 }}>
-                          {region.type}
-                        </Typography>
+                        <RegionName>{region.type}</RegionName>
                       ) : (
                         <FormControl>
                           <Select
@@ -122,7 +145,6 @@ export default function RegionSettings(props: RegionSettingsProps) {
                               );
                             }}
                             inputProps={{ "aria-label": "Without label" }}
-                            style={{ width: 100 }}
                           >
                             <MenuItem value="None">
                               <em>None</em>
@@ -135,11 +157,9 @@ export default function RegionSettings(props: RegionSettingsProps) {
                       )}
                     </Grid>
                   </Grid>
-                  <Grid container xs={12} spacing={2} style={{ marginTop: 10 }}>
+                  <RegionPropertiesGrid container xs={12} spacing={2}>
                     <Grid item xs={3}>
-                      <Typography component="h2" style={{ fontWeight: 600 }}>
-                        Color
-                      </Typography>
+                      <RegionProperty>Color</RegionProperty>
                     </Grid>
                     <Grid item xs={3}>
                       <ColorPicker
@@ -148,13 +168,8 @@ export default function RegionSettings(props: RegionSettingsProps) {
                         onChange={handleColorChange}
                       />
                     </Grid>
-                  </Grid>
-                  <Typography
-                    component="h2"
-                    style={{ marginTop: 20, fontWeight: 600 }}
-                  >
-                    Transparency
-                  </Typography>
+                  </RegionPropertiesGrid>
+                  <RegionProperty>Transparency</RegionProperty>
                   <Slider
                     value={region.transparency}
                     onChange={(event, newValue) =>
@@ -189,13 +204,13 @@ export default function RegionSettings(props: RegionSettingsProps) {
                     </Button>
                   )}
                 </CardActions>
-              </Card>
+              </RegionSettingCard>
             );
           })}
       </div>
       <Button variant="contained" onClick={addNewRegion}>
         New Region
       </Button>
-    </div>
+    </RegionSettingsDiv>
   );
 }

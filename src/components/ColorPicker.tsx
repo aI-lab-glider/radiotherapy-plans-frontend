@@ -1,8 +1,7 @@
 import React, { useState } from "react";
 
-import reactCSS from "reactcss";
-
 import { ColorResult, RGBColor, SketchPicker } from "react-color";
+import styled from "styled-components";
 
 interface ColorPickerProps {
   regionId: string;
@@ -12,64 +11,48 @@ interface ColorPickerProps {
 
 export default function ColorPicker(props: ColorPickerProps) {
   const [display, setDisplay] = useState(false);
+  const [color, setColor] = useState(props.color);
 
-  const styles = reactCSS({
-    default: {
-      color: {
-        width: "36px",
+  const PickerFrame = styled.div`
+    padding: 5px;
+    background: #fff;
+    border-radius: 1px;
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1);
+    display: inline-block;
+    cursor: pointer;
+  `;
 
-        height: "14px",
-
-        borderRadius: "2px",
-
-        background: `rgba(${props.color.r}, ${props.color.g}, ${props.color.b}, ${props.color.a})`,
-      },
-
-      swatch: {
-        padding: "5px",
-
-        background: "#fff",
-
-        borderRadius: "1px",
-
-        boxShadow: "0 0 0 1px rgba(0,0,0,.1)",
-
-        display: "inline-block",
-
-        cursor: "pointer",
-      },
-    },
-  });
+  const ColorBox = styled.div`
+    width: 36px;
+    height: 14px;
+    border-radius: 2px;
+    background: rgba(${color.r}, ${color.g}, ${color.b}, ${color.a});
+  `;
 
   const handleClick = () => {
+    display && props.onChange(props.regionId, color);
     setDisplay(!display);
-  };
-
-  const handleClose = () => {
-    setDisplay(false);
   };
 
   return (
     <div>
-      <div style={styles.swatch} onClick={handleClick}>
-        <div style={styles.color} />
-      </div>
+      <PickerFrame onClick={handleClick}>
+        <ColorBox />
+      </PickerFrame>
 
       {display ? (
         <div>
-          <div onClick={handleClose} />
-
           <SketchPicker
             color={{
-              r: props.color.r,
-              g: props.color.g,
-              b: props.color.b,
-              a: props.color.a,
+              r: color.r,
+              g: color.g,
+              b: color.b,
+              a: color.a,
             }}
             onChange={(
               color: ColorResult,
               event: React.ChangeEvent<HTMLInputElement>
-            ) => props.onChange(props.regionId, color.rgb)}
+            ) => setColor(color.rgb)}
           />
         </div>
       ) : null}

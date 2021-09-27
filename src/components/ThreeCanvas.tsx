@@ -1,8 +1,8 @@
 import { Suspense, useEffect, useState } from "react";
-import { Canvas } from "@react-three/fiber";
+import { Canvas, useLoader } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
-import { useLoader } from "@react-three/fiber";
 import { OBJLoader } from "three/examples/jsm/loaders/OBJLoader";
+import styled from "styled-components";
 
 const Model = () => {
   const obj = useLoader(OBJLoader, "skull.OBJ");
@@ -26,17 +26,22 @@ export default function ThreeCanvas({ appBarHeight }: ThreeCanvasProps) {
         width: window.innerWidth,
       });
     }
+
     window.addEventListener("resize", handleResize);
     return () => {
       window.removeEventListener("resize", handleResize);
     };
   });
 
+  const StyledCanvas = styled(Canvas)`
+    background-color: #333333;
+    width: ${dimensions.width}px;
+    height: ${dimensions.height - appBarHeight}px;
+  `;
+
   return (
-    <Canvas
+    <StyledCanvas
       style={{
-        backgroundColor: "#333333",
-        width: `${dimensions.width}px`,
         height: `${dimensions.height - appBarHeight}px`,
       }}
     >
@@ -47,6 +52,6 @@ export default function ThreeCanvas({ appBarHeight }: ThreeCanvasProps) {
         <OrbitControls />
         <Model />
       </Suspense>
-    </Canvas>
+    </StyledCanvas>
   );
 }
