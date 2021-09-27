@@ -1,10 +1,14 @@
 import { Button, CircularProgress, Typography } from "@material-ui/core";
+import CloudUploadIcon from "@material-ui/icons/CloudUpload";
+import CheckCircleOutlineIcon from "@material-ui/icons/CheckCircleOutline";
 import axios from "axios";
 import dicomParser from "dicom-parser";
 import JSZip from "jszip";
 import React, { useCallback, useReducer, useRef, useState } from "react";
 import { FileRejection, useDropzone } from "react-dropzone";
 import styled from "styled-components";
+import { useDispatch } from "react-redux";
+import { uploadFiles } from "../actions/uploadActions";
 
 interface State {
   ctFiles: File[];
@@ -45,6 +49,7 @@ export default function Upload() {
   const [state, dispatch] = useReducer(reducer, initialState);
   const [showProgress, setShowProgress] = useState(false);
   const studyUid = useRef("");
+  const _dispatch = useDispatch();
 
   const onDrop = useCallback(
     (acceptedFiles: File[], rejectedFiles: FileRejection[]) => {
@@ -107,6 +112,7 @@ export default function Upload() {
         .then((response) => {
           dispatch({ type: ActionType.RESET });
           setShowProgress(false);
+          _dispatch(uploadFiles());
           alert(response.data);
         })
         .catch((error) => {
@@ -127,9 +133,12 @@ export default function Upload() {
   `;
 
   return (
-    <>
+    <div style={{ marginRight: 10, marginLeft: 10 }}>
+      <Typography>
+        <h2>Upload files</h2>
+      </Typography>
       {Object.values(state).some((value) => value.length === 0) && (
-        <h2>Add:</h2>
+        <Typography>Add following files:</Typography>
       )}
       <StyledList>
         {Object.entries(state)
@@ -145,14 +154,23 @@ export default function Upload() {
           padding: 40,
           backgroundColor: "#f1f1f1",
           borderStyle: "dashed",
+          textAlign: "center",
         }}
       >
         <input {...getInputProps()} />
-        <p>Drag 'n' drop some files here, or click to select files</p>
+        <CloudUploadIcon style={{ fontSize: 70 }} />
+        <p>Choose a file or drag it here.</p>
       </div>
       <Typography display="block">
         {Object.values(state).map((files) =>
-          files.map((file: File) => `*${file.name}*`)
+          files.map((file: File) => (
+            <li style={{ listStyle: "none" }}>
+              <CheckCircleOutlineIcon
+                style={{ fontSize: 15, color: "green" }}
+              />
+              {file.name}
+            </li>
+          ))
         )}
       </Typography>
       <ProgressDiv>{showProgress && <CircularProgress />}</ProgressDiv>
@@ -160,9 +178,10 @@ export default function Upload() {
         disabled={Object.values(state).some((files) => files.length === 0)}
         variant="contained"
         onClick={zipAndUpload}
+        style={{ marginLeft: 20, marginRight: 20 }}
       >
         Zip And Upload
       </Button>
-    </>
+    </div>
   );
 }

@@ -1,4 +1,5 @@
 import React from "react";
+import { useSelector, useDispatch } from "react-redux";
 import clsx from "clsx";
 import { makeStyles, Theme, createStyles } from "@material-ui/core/styles";
 import Drawer from "@material-ui/core/Drawer";
@@ -7,12 +8,15 @@ import Toolbar from "@material-ui/core/Toolbar";
 import Typography from "@material-ui/core/Typography";
 import Divider from "@material-ui/core/Divider";
 import IconButton from "@material-ui/core/IconButton";
+import Button from "@material-ui/core/Button";
 import MenuIcon from "@material-ui/icons/Menu";
 import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
 import ThreeCanvas from "./components/ThreeCanvas";
 import Upload from "./components/Upload";
 import BasicSettings from "./components/BasicSettings";
 import RegionSettings from "./components/RegionSettings";
+import { resetUploadedFiles } from "./actions/uploadActions";
+import { UploadState } from "./reducers/uploadReducer";
 
 const drawerWidth = 360;
 const appBarHeight = 60;
@@ -68,12 +72,19 @@ const useStyles = makeStyles((theme: Theme) =>
       }),
       marginLeft: 0,
     },
+    resetButton: {
+      margin: 20,
+    },
   })
 );
 
 export default function App() {
   const classes = useStyles();
   const [open, setOpen] = React.useState(true);
+  const filesUploaded = useSelector(
+    (state: UploadState) => state.filesUploaded
+  );
+  const dispatch = useDispatch();
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -122,14 +133,27 @@ export default function App() {
           </IconButton>
         </div>
         <Divider />
-
-        <Upload />
-        <BasicSettings />
-        <Divider />
-        <RegionSettings
-          regions={[]}
-          selectableRegions={["maxilla", "jawbone"]}
-        />
+        {filesUploaded ? (
+          <>
+            <BasicSettings />
+            <Divider />
+            <RegionSettings
+              regions={[]}
+              selectableRegions={["maxilla", "jawbone"]}
+            />
+            <Divider />
+            <Button
+              color="secondary"
+              variant="contained"
+              className={classes.resetButton}
+              onClick={() => dispatch(resetUploadedFiles())}
+            >
+              Reset Uploaded Files
+            </Button>
+          </>
+        ) : (
+          <Upload />
+        )}
       </Drawer>
 
       <div className={classes.header} />
