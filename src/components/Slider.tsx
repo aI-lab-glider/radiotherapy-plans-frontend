@@ -1,25 +1,21 @@
 import Grid from "@material-ui/core/Grid";
-import Slider from "@material-ui/core/Slider";
+import Slider, { SliderProps } from "@material-ui/core/Slider";
 import Typography from "@material-ui/core/Typography";
 import React, { SVGProps } from "react";
 
-type SliderProps = {
+export interface ContinuousSliderProps extends SliderProps {
   title: string;
   leftIcon: SVGProps<SVGElement>;
   rightIcon: SVGProps<SVGElement>;
-};
+}
 
 export default function ContinuousSlider({
   title,
   leftIcon,
   rightIcon,
-}: SliderProps) {
-  const [value, setValue] = React.useState<number>(50);
-
-  const handleChange = (event: unknown, newValue: number | number[]) => {
-    setValue(newValue as number);
-  };
-
+  value,
+  onChange,
+}: ContinuousSliderProps) {
   return (
     <div>
       <Typography id="continuous-slider" gutterBottom>
@@ -30,7 +26,7 @@ export default function ContinuousSlider({
         <Grid item xs>
           <Slider
             value={value}
-            onChange={handleChange}
+            onChange={onChange}
             aria-labelledby="continuous-slider"
           />
         </Grid>
