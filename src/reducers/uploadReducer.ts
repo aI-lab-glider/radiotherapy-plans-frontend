@@ -1,11 +1,11 @@
 import { AnyAction } from "redux";
 
 export interface UploadState {
-  filesUploaded: boolean;
+  isFilesUploaded: boolean;
 }
 
 export const initialState: UploadState = {
-  filesUploaded: false,
+  isFilesUploaded: false,
 };
 
 const uploadReducer = (state = initialState, action: AnyAction) => {
@@ -13,7 +13,7 @@ const uploadReducer = (state = initialState, action: AnyAction) => {
     case "uploaded":
       return {
         ...state,
-        filesUploaded: action.filesUploaded,
+        isFilesUploaded: action.isFilesUploaded,
       };
     default:
       return state;

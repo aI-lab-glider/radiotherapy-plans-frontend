@@ -1,13 +1,13 @@
 export const uploadFiles = () => {
   return {
     type: "uploaded",
-    filesUploaded: true,
+    isFilesUploaded: true,
   };
 };
 
 export const resetUploadedFiles = () => {
   return {
     type: "uploaded",
-    filesUploaded: false,
+    isFilesUploaded: false,
   };
 };
