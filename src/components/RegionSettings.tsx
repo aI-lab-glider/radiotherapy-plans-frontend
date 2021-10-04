@@ -23,13 +23,17 @@ export interface Region {
 }
 
 interface RegionSettingsProps {
-  regions: Array<Region>;
+  selectedRegions: Array<Region>;
   selectableRegions: Array<string>;
   onRegionsChange: (regions: Array<Region>) => void;
 }
 
-export default function RegionSettings(props: RegionSettingsProps) {
-  const [regions, setRegions] = React.useState<Array<Region>>(props.regions);
+export default function RegionSettings({
+  selectedRegions,
+  selectableRegions,
+  onRegionsChange,
+}: RegionSettingsProps) {
+  const [regions, setRegions] = React.useState<Array<Region>>(selectedRegions);
   const addNewRegion = (e: MouseEvent<HTMLButtonElement>) => {
     setRegions([
       ...regions,
@@ -79,7 +83,7 @@ export default function RegionSettings(props: RegionSettingsProps) {
       r.id === id ? { ...r, transparency: newValue } : r
     );
     setRegions(newRegions);
-    props.onRegionsChange(newRegions);
+    onRegionsChange(newRegions);
   };
 
   function handleColorChange(id: string, newColor: RGBColor) {
@@ -151,7 +155,7 @@ export default function RegionSettings(props: RegionSettingsProps) {
                             <MenuItem value="None">
                               <em>None</em>
                             </MenuItem>
-                            {props.selectableRegions.map((x) => (
+                            {selectableRegions.map((x) => (
                               <MenuItem value={x}>{x}</MenuItem>
                             ))}
                           </Select>
@@ -166,7 +170,7 @@ export default function RegionSettings(props: RegionSettingsProps) {
                     <Grid item xs={3}>
                       <ColorPicker
                         regionId={region.id}
-                        color={region.color}
+                        rgbColor={region.color}
                         onChange={handleColorChange}
                       />
                     </Grid>

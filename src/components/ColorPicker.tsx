@@ -5,13 +5,17 @@ import styled from "styled-components";
 
 interface ColorPickerProps {
   regionId: string;
-  color: RGBColor;
+  rgbColor: RGBColor;
   onChange: (id: string, color: RGBColor) => void;
 }
 
-export default function ColorPicker(props: ColorPickerProps) {
+export default function ColorPicker({
+  regionId,
+  rgbColor,
+  onChange,
+}: ColorPickerProps) {
   const [display, setDisplay] = useState(false);
-  const [color, setColor] = useState(props.color);
+  const [color, setColor] = useState(rgbColor);
 
   const PickerFrame = styled.div`
     padding: 5px;
@@ -30,7 +34,7 @@ export default function ColorPicker(props: ColorPickerProps) {
   `;
 
   const handleClick = () => {
-    display && props.onChange(props.regionId, color);
+    display && onChange(regionId, color);
     setDisplay(!display);
   };
 

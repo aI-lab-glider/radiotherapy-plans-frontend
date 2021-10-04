@@ -4,8 +4,7 @@ import { OrbitControls } from "@react-three/drei";
 import { OBJLoader } from "three/examples/jsm/loaders/OBJLoader";
 import styled from "styled-components";
 import * as THREE from "three";
-import { Plane } from "three";
-import { Vector3 } from "three";
+import { Plane, Vector3 } from "three";
 
 interface ModelProps {
   opacity: number;
@@ -66,7 +65,12 @@ interface ThreeCanvasProps {
   radius: number;
 }
 
-export default function ThreeCanvas(props: ThreeCanvasProps) {
+export default function ThreeCanvas({
+  appBarHeight,
+  colorIntensity,
+  opacity,
+  radius,
+}: ThreeCanvasProps) {
   const [dimensions, setDimensions] = useState({
     height: window.innerHeight,
     width: window.innerWidth,
@@ -89,21 +93,21 @@ export default function ThreeCanvas(props: ThreeCanvasProps) {
   const StyledCanvas = styled(Canvas)`
     background-color: #333333;
     width: ${dimensions.width}px;
-    height: ${dimensions.height - props.appBarHeight}px;
+    height: ${dimensions.height - appBarHeight}px;
   `;
 
   return (
     <StyledCanvas
       style={{
-        height: `${dimensions.height - props.appBarHeight}px`,
+        height: `${dimensions.height - appBarHeight}px`,
       }}
     >
       <Suspense fallback={null}>
-        <ambientLight intensity={props.colorIntensity} />
+        <ambientLight intensity={colorIntensity} />
         <pointLight position={[10, 10, 10]} />
         <pointLight position={[-10, -10, -10]} />
         <OrbitControls />
-        <Model opacity={props.opacity} radius={props.radius} />
+        <Model opacity={opacity} radius={radius} />
       </Suspense>
     </StyledCanvas>
   );

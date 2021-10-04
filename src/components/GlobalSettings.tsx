@@ -1,4 +1,4 @@
-import React from "react";
+import React, { FormEventHandler } from "react";
 import Typography from "@material-ui/core/Typography";
 import BrightnessHighIcon from "@material-ui/icons/BrightnessHigh";
 import BrightnessLowIcon from "@material-ui/icons/BrightnessLow";
@@ -7,38 +7,51 @@ import RemoveIcon from "@material-ui/icons/Remove";
 import ContinuousSlider from "./Slider";
 import styled from "styled-components";
 
-interface BasicSettingsProps {
+interface GlobalSettingsProps {
   brightness: number;
-  onBrightnessChange: (event: unknown, newValue: number | number[]) => void;
+  onBrightnessChange: ((
+    event: React.ChangeEvent<{}>,
+    value: number | number[]
+  ) => void) &
+    FormEventHandler<HTMLSpanElement>;
   cut: number;
-  onCutChange: (event: unknown, newValue: number | number[]) => void;
+  onCutChange: ((
+    event: React.ChangeEvent<{}>,
+    value: number | number[]
+  ) => void) &
+    FormEventHandler<HTMLSpanElement>;
 }
 
-export default function BasicSettings(props: BasicSettingsProps) {
-  const BasicSettingsDiv = styled.div`
+export default function GlobalSettings({
+  brightness,
+  onBrightnessChange,
+  cut,
+  onCutChange,
+}: GlobalSettingsProps) {
+  const GlobalSettingsDiv = styled.div`
     width: 320px;
     padding: 20px;
   `;
 
   return (
-    <BasicSettingsDiv>
+    <GlobalSettingsDiv>
       <Typography>
-        <h2>Basic Settings</h2>
+        <h2>Global Settings</h2>
       </Typography>
       <ContinuousSlider
         title="Brightness"
         leftIcon={<BrightnessLowIcon />}
         rightIcon={<BrightnessHighIcon />}
-        value={props.brightness}
-        onValueChange={props.onBrightnessChange}
+        value={brightness}
+        onChange={onBrightnessChange}
       />
       <ContinuousSlider
         title="Cut"
         leftIcon={<RemoveIcon />}
         rightIcon={<AddIcon />}
-        value={props.cut}
-        onValueChange={props.onCutChange}
+        value={cut}
+        onChange={onCutChange}
       />
-    </BasicSettingsDiv>
+    </GlobalSettingsDiv>
   );
 }

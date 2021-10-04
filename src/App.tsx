@@ -11,7 +11,7 @@ import MenuIcon from "@material-ui/icons/Menu";
 import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
 import ThreeCanvas from "./components/ThreeCanvas";
 import Upload from "./components/Upload";
-import BasicSettings from "./components/BasicSettings";
+import GlobalSettings from "./components/GlobalSettings";
 import RegionSettings, { Region } from "./components/RegionSettings";
 
 const drawerWidth = 360;
@@ -127,22 +127,21 @@ export default function App() {
         <Divider />
 
         <Upload />
-        <BasicSettings
+        <GlobalSettings
           brightness={brightness}
           cut={cut}
+          //@ts-ignore
           onBrightnessChange={(event, newValue) =>
             setBrightness(newValue as number)
           }
+          //@ts-ignore
           onCutChange={(event, newValue) => setCut(newValue as number)}
         />
         <Divider />
         <RegionSettings
-          regions={regions}
+          selectedRegions={regions}
           selectableRegions={["maxilla", "jawbone"]}
-          onRegionsChange={(regions) => {
-            setRegions(regions);
-            console.log(regions[0].transparency);
-          }}
+          onRegionsChange={setRegions}
         />
       </Drawer>
 
