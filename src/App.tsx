@@ -75,8 +75,8 @@ const useStyles = makeStyles((theme: Theme) =>
 export default function App() {
   const classes = useStyles();
   const [open, setOpen] = React.useState(true);
-  const isFilesUploaded = useSelector(
-    (state: UploadState) => state.isFilesUploaded
+  const isFileUploaded = useSelector(
+    (state: UploadState) => state.isFileUploaded
   );
 
   const handleDrawerOpen = () => {
@@ -126,7 +126,7 @@ export default function App() {
           </IconButton>
         </div>
         <Divider />
-        {isFilesUploaded ? <DrawerToolbar /> : <Upload />}
+        {isFileUploaded ? <DrawerToolbar /> : <Upload />}
       </Drawer>
 
       <div className={classes.header} />
