@@ -13,7 +13,7 @@ const uploadReducer = (state = initialState, action: AnyAction) => {
     case "uploaded":
       return {
         ...state,
-        isFilesUploaded: action.isFilesUploaded,
+        isFilesUploaded: action.payload,
       };
     default:
       return state;

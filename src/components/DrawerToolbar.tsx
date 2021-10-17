@@ -5,7 +5,7 @@ import Divider from "@material-ui/core/Divider";
 import Button from "@material-ui/core/Button";
 import BasicSettings from "./BasicSettings";
 import RegionSettings from "./RegionSettings";
-import { resetUploadedFiles } from "../actions/uploadActions";
+import { setUploadedFiels } from "../actions/uploadActions";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -29,7 +29,7 @@ const DrawerToolbar = () => {
         color="secondary"
         variant="contained"
         className={classes.resetButton}
-        onClick={() => dispatch(resetUploadedFiles())}
+        onClick={() => dispatch(setUploadedFiels(false))}
       >
         Reset Uploaded Files
       </Button>

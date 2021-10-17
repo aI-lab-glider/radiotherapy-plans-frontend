@@ -8,7 +8,7 @@ import React, { useCallback, useReducer, useRef, useState } from "react";
 import { FileRejection, useDropzone } from "react-dropzone";
 import styled from "styled-components";
 import { useDispatch } from "react-redux";
-import { uploadFiles } from "../actions/uploadActions";
+import { setUploadedFiels } from "../actions/uploadActions";
 
 interface State {
   ctFiles: File[];
@@ -112,7 +112,7 @@ export default function Upload() {
         .then((response) => {
           dispatch({ type: ActionType.RESET });
           setShowProgress(false);
-          _dispatch(uploadFiles());
+          _dispatch(setUploadedFiels(true));
           alert(response.data);
         })
         .catch((error) => {

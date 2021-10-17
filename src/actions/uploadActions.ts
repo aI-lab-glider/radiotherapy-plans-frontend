@@ -1,13 +1,3 @@
-export const uploadFiles = () => {
-  return {
-    type: "uploaded",
-    isFilesUploaded: true,
-  };
-};
+import { createAction } from "@reduxjs/toolkit";
 
-export const resetUploadedFiles = () => {
-  return {
-    type: "uploaded",
-    isFilesUploaded: false,
-  };
-};
+export const setUploadedFiels = createAction<boolean>("uploaded");
