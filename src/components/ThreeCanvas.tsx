@@ -1,8 +1,16 @@
 import { Suspense, useEffect, useState } from "react";
 import { Canvas, useLoader } from "@react-three/fiber";
-import { OrbitControls } from "@react-three/drei";
+import { OrbitControls, Html } from "@react-three/drei";
 import { OBJLoader } from "three/examples/jsm/loaders/OBJLoader";
 import styled from "styled-components";
+
+const Loader = () => {
+  return (
+    <Html center style={{ color: "#FFFFFF" }}>
+      Loading...
+    </Html>
+  );
+};
 
 const Model = () => {
   const obj = useLoader(OBJLoader, "skull.OBJ");
@@ -45,7 +53,7 @@ export default function ThreeCanvas({ appBarHeight }: ThreeCanvasProps) {
         height: `${dimensions.height - appBarHeight}px`,
       }}
     >
-      <Suspense fallback={null}>
+      <Suspense fallback={<Loader />}>
         <ambientLight intensity={0.2} />
         <pointLight position={[10, 10, 10]} />
         <pointLight position={[-10, -10, -10]} />
