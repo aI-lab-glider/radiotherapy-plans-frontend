@@ -1,4 +1,5 @@
 import React from "react";
+import { useSelector } from "react-redux";
 import clsx from "clsx";
 import { makeStyles, Theme, createStyles } from "@material-ui/core/styles";
 import Drawer from "@material-ui/core/Drawer";
@@ -11,8 +12,8 @@ import MenuIcon from "@material-ui/icons/Menu";
 import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
 import ThreeCanvas from "./components/ThreeCanvas";
 import Upload from "./components/Upload";
-import BasicSettings from "./components/BasicSettings";
-import RegionSettings from "./components/RegionSettings";
+import DrawerToolbar from "./components/DrawerToolbar";
+import { UploadState } from "./reducers/uploadReducer";
 
 const drawerWidth = 360;
 const appBarHeight = 60;
@@ -74,6 +75,9 @@ const useStyles = makeStyles((theme: Theme) =>
 export default function App() {
   const classes = useStyles();
   const [open, setOpen] = React.useState(true);
+  const isFileUploaded = useSelector(
+    (state: UploadState) => state.isFileUploaded
+  );
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -122,14 +126,7 @@ export default function App() {
           </IconButton>
         </div>
         <Divider />
-
-        <Upload />
-        <BasicSettings />
-        <Divider />
-        <RegionSettings
-          regions={[]}
-          selectableRegions={["maxilla", "jawbone"]}
-        />
+        {isFileUploaded ? <DrawerToolbar /> : <Upload />}
       </Drawer>
 
       <div className={classes.header} />
