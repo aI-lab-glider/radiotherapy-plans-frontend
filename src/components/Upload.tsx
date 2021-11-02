@@ -2,7 +2,7 @@ import { Button, CircularProgress, Typography } from "@material-ui/core";
 import CloudUploadIcon from "@material-ui/icons/CloudUpload";
 import CheckCircleOutlineIcon from "@material-ui/icons/CheckCircleOutline";
 import axios from "axios";
-import dicomParser, { DataSet } from "dicom-parser";
+import dicomParser from "dicom-parser";
 import JSZip from "jszip";
 import React, { useCallback, useReducer, useRef, useState } from "react";
 import { FileRejection, useDropzone } from "react-dropzone";
