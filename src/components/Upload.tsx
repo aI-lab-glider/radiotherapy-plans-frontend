@@ -53,6 +53,41 @@ export default function Upload() {
 
   const onDrop = useCallback(
     (acceptedFiles: File[], rejectedFiles: FileRejection[]) => {
+      const parse = (file: File): boolean => {
+        file.arrayBuffer().then((arrayBuffer) => {
+          const byteArray = new Uint8Array(arrayBuffer);
+          try {
+            const dataSet = dicomParser.parseDicom(byteArray /*, options */);
+            const studyInstanceUid = dataSet.string("x0020000d");
+            if (studyUid.current !== studyInstanceUid) {
+              if (studyUid.current === "") studyUid.current = studyInstanceUid;
+              else {
+                alert(
+                  "Files studyInstanceUid doesn't match. Files will be reset!"
+                );
+                dispatch({ type: ActionType.RESET });
+                studyUid.current = "";
+                return false;
+              }
+            }
+            const modality = dataSet.string("x00080060");
+
+            if (modality === "RTSTRUCT") {
+              let array = Array<string | undefined>();
+              dataSet.elements["x30060020"].items?.forEach((item) => {
+                array.push(item.dataSet?.string("x30060026"));
+              });
+              _dispatch(setRegionTypes(array));
+            }
+
+            dispatch({ type: modality, payload: file });
+          } catch (ex) {
+            console.log("Error parsing byte stream", ex);
+          }
+        });
+        return true;
+      };
+
       acceptedFiles.every((file) => {
         return parse(file);
       });
@@ -62,45 +97,13 @@ export default function Upload() {
             rejectedFiles.map((fileWrapper) => `\n${fileWrapper.file.name}`)
         );
     },
-    []
+    [_dispatch]
   );
+
   const { getRootProps, getInputProps } = useDropzone({
     onDrop,
     accept: ".dcm",
   });
-
-  const parse = (file: File): boolean => {
-    file.arrayBuffer().then((arrayBuffer) => {
-      const byteArray = new Uint8Array(arrayBuffer);
-      try {
-        const dataSet = dicomParser.parseDicom(byteArray /*, options */);
-        const studyInstanceUid = dataSet.string("x0020000d");
-        if (studyUid.current !== studyInstanceUid) {
-          if (studyUid.current === "") studyUid.current = studyInstanceUid;
-          else {
-            alert("Files studyInstanceUid doesn't match. Files will be reset!");
-            dispatch({ type: ActionType.RESET });
-            studyUid.current = "";
-            return false;
-          }
-        }
-        const modality = dataSet.string("x00080060");
-
-        if (modality === "RTSTRUCT") {
-          let array = Array<string | undefined>();
-          dataSet.elements["x30060020"].items?.forEach((item) => {
-            array.push(item.dataSet?.string("x30060026"));
-          });
-          _dispatch(setRegionTypes(array));
-        }
-
-        dispatch({ type: modality, payload: file });
-      } catch (ex) {
-        console.log("Error parsing byte stream", ex);
-      }
-    });
-    return true;
-  };
 
   const zipAndUpload = () => {
     setShowProgress(true);
