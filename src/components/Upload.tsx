@@ -2,13 +2,13 @@ import { Button, CircularProgress, Typography } from "@material-ui/core";
 import CloudUploadIcon from "@material-ui/icons/CloudUpload";
 import CheckCircleOutlineIcon from "@material-ui/icons/CheckCircleOutline";
 import axios from "axios";
-import dicomParser from "dicom-parser";
+import dicomParser, { DataSet } from "dicom-parser";
 import JSZip from "jszip";
 import React, { useCallback, useReducer, useRef, useState } from "react";
 import { FileRejection, useDropzone } from "react-dropzone";
 import styled from "styled-components";
 import { useDispatch } from "react-redux";
-import { setUploadedFiels } from "../actions/uploadActions";
+import { setUploadedFiels, setRegionTypes } from "../actions/uploadActions";
 
 interface State {
   ctFiles: File[];
@@ -72,7 +72,6 @@ export default function Upload() {
   const parse = (file: File): boolean => {
     file.arrayBuffer().then((arrayBuffer) => {
       const byteArray = new Uint8Array(arrayBuffer);
-
       try {
         const dataSet = dicomParser.parseDicom(byteArray /*, options */);
         const studyInstanceUid = dataSet.string("x0020000d");
@@ -86,6 +85,15 @@ export default function Upload() {
           }
         }
         const modality = dataSet.string("x00080060");
+
+        if (modality === "RTSTRUCT") {
+          let array = Array<string | undefined>();
+          dataSet.elements["x30060020"].items?.forEach((item) => {
+            array.push(item.dataSet?.string("x30060026"));
+          });
+          _dispatch(setRegionTypes(array));
+        }
+
         dispatch({ type: modality, payload: file });
       } catch (ex) {
         console.log("Error parsing byte stream", ex);
@@ -116,8 +124,14 @@ export default function Upload() {
           alert(response.data);
         })
         .catch((error) => {
+          //TODO left for test purposes
+          //remove:
+          dispatch({ type: ActionType.RESET });
           setShowProgress(false);
-          alert(error);
+          _dispatch(setUploadedFiels(true));
+          //uncomment:
+          // setShowProgress(false);
+          // alert(error);
         });
     });
   };
