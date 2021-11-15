@@ -1,13 +1,13 @@
 import { Button, CircularProgress, Typography } from "@material-ui/core";
-import CloudUploadIcon from "@material-ui/icons/CloudUpload";
 import CheckCircleOutlineIcon from "@material-ui/icons/CheckCircleOutline";
+import CloudUploadIcon from "@material-ui/icons/CloudUpload";
 import axios from "axios";
 import dicomParser from "dicom-parser";
 import JSZip from "jszip";
 import React, { useCallback, useReducer, useRef, useState } from "react";
 import { FileRejection, useDropzone } from "react-dropzone";
-import styled from "styled-components";
 import { useDispatch } from "react-redux";
+import styled from "styled-components";
 import { setUploadedFiels } from "../actions/uploadActions";
 
 interface State {
@@ -108,7 +108,7 @@ export default function Upload() {
       const formData = new FormData();
       formData.append("file", file, "archive.zip");
       axios
-        .post("http://127.0.0.1:5000/upload", formData)
+        .post(process.env.REACT_APP_UPLOAD_URL!, formData)
         .then((response) => {
           dispatch({ type: ActionType.RESET });
           setShowProgress(false);
@@ -143,7 +143,7 @@ export default function Upload() {
       <StyledList>
         {Object.entries(state)
           .filter(([key, value]) => value.length === 0)
-          .map(([key, value]) => (
+          .map(([key]) => (
             <li> {key} </li>
           ))}
       </StyledList>
