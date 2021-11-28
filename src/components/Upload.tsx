@@ -45,11 +45,24 @@ function reducer(state: State, action: Action): State {
   }
 }
 
+const resetStudyUid = (
+  studyUid: React.MutableRefObject<String>,
+  dispatch: React.Dispatch<Action>
+) => {
+  dispatch({ type: ActionType.RESET });
+  studyUid.current = "";
+};
+
+const STUDY_INSTACE_UID_CODE = "x0020000d";
+const MODALITY_CODE = "x00080060";
+const REGION_TYPES_LIST_CODE = "x30060020";
+const REGION_TYPE_CODE = "x30060026";
+
 export default function Upload() {
-  const [state, dispatch] = useReducer(reducer, initialState);
+  const [state, localDispatch] = useReducer(reducer, initialState);
   const [showProgress, setShowProgress] = useState(false);
   const studyUid = useRef("");
-  const _dispatch = useDispatch();
+  const globalDispatch = useDispatch();
 
   const onDrop = useCallback(
     (acceptedFiles: File[], rejectedFiles: FileRejection[]) => {
@@ -58,29 +71,33 @@ export default function Upload() {
           const byteArray = new Uint8Array(arrayBuffer);
           try {
             const dataSet = dicomParser.parseDicom(byteArray /*, options */);
-            const studyInstanceUid = dataSet.string("x0020000d");
-            if (studyUid.current !== studyInstanceUid) {
-              if (studyUid.current === "") studyUid.current = studyInstanceUid;
-              else {
-                alert(
-                  "Files studyInstanceUid doesn't match. Files will be reset!"
-                );
-                dispatch({ type: ActionType.RESET });
-                studyUid.current = "";
-                return false;
-              }
+            const studyInstanceUid = dataSet.string(STUDY_INSTACE_UID_CODE);
+            if (
+              studyUid.current !== studyInstanceUid &&
+              studyUid.current === ""
+            ) {
+              studyUid.current = studyInstanceUid;
+            } else {
+              alert(
+                "Files studyInstanceUid doesn't match. Files will be reset!"
+              );
+              resetStudyUid(studyUid, localDispatch);
+              return false;
             }
-            const modality = dataSet.string("x00080060");
+
+            const modality = dataSet.string(MODALITY_CODE);
 
             if (modality === "RTSTRUCT") {
               let array = Array<string | undefined>();
-              dataSet.elements["x30060020"].items?.forEach((item) => {
-                array.push(item.dataSet?.string("x30060026"));
-              });
-              _dispatch(setRegionTypes(array));
+              dataSet.elements[REGION_TYPES_LIST_CODE].items?.forEach(
+                (item) => {
+                  array.push(item.dataSet?.string(REGION_TYPE_CODE));
+                }
+              );
+              globalDispatch(setRegionTypes(array));
             }
 
-            dispatch({ type: modality, payload: file });
+            localDispatch({ type: modality, payload: file });
           } catch (ex) {
             console.log("Error parsing byte stream", ex);
           }
@@ -97,7 +114,7 @@ export default function Upload() {
             rejectedFiles.map((fileWrapper) => `\n${fileWrapper.file.name}`)
         );
     },
-    [_dispatch]
+    [globalDispatch]
   );
 
   const { getRootProps, getInputProps } = useDropzone({
@@ -121,17 +138,17 @@ export default function Upload() {
       axios
         .post("http://127.0.0.1:5000/upload", formData)
         .then((response) => {
-          dispatch({ type: ActionType.RESET });
+          localDispatch({ type: ActionType.RESET });
           setShowProgress(false);
-          _dispatch(setUploadedFiels(true));
+          globalDispatch(setUploadedFiels(true));
           alert(response.data);
         })
         .catch((error) => {
           //TODO left for test purposes
           //remove:
-          dispatch({ type: ActionType.RESET });
+          localDispatch({ type: ActionType.RESET });
           setShowProgress(false);
-          _dispatch(setUploadedFiels(true));
+          globalDispatch(setUploadedFiels(true));
           //uncomment:
           // setShowProgress(false);
           // alert(error);
