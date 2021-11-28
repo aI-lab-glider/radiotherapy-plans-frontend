@@ -1,8 +1,8 @@
-import { Suspense, useEffect, useState } from "react";
+import { Html, OrbitControls } from "@react-three/drei";
 import { Canvas, useLoader } from "@react-three/fiber";
-import { OrbitControls, Html } from "@react-three/drei";
-import { OBJLoader } from "three/examples/jsm/loaders/OBJLoader";
+import { Suspense, useEffect, useState } from "react";
 import styled from "styled-components";
+import { OBJLoader } from "three/examples/jsm/loaders/OBJLoader";
 
 const Loader = () => {
   return (
