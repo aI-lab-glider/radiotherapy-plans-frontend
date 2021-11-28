@@ -8,7 +8,7 @@ import React, { useCallback, useReducer, useRef, useState } from "react";
 import { FileRejection, useDropzone } from "react-dropzone";
 import { useDispatch } from "react-redux";
 import styled from "styled-components";
-import { setUploadedFiels } from "../actions/uploadActions";
+import { setUploadedFiels, setRegionTypes } from "../actions/uploadActions";
 
 interface State {
   ctFiles: File[];
@@ -45,14 +45,66 @@ function reducer(state: State, action: Action): State {
   }
 }
 
+const resetStudyUid = (
+  studyUid: React.MutableRefObject<String>,
+  dispatch: React.Dispatch<Action>
+) => {
+  dispatch({ type: ActionType.RESET });
+  studyUid.current = "";
+};
+
+const STUDY_INSTACE_UID_CODE = "x0020000d";
+const MODALITY_CODE = "x00080060";
+const REGION_TYPES_LIST_CODE = "x30060020";
+const REGION_TYPE_CODE = "x30060026";
+
 export default function Upload() {
-  const [state, dispatch] = useReducer(reducer, initialState);
+  const [state, localDispatch] = useReducer(reducer, initialState);
   const [showProgress, setShowProgress] = useState(false);
   const studyUid = useRef("");
-  const _dispatch = useDispatch();
+  const globalDispatch = useDispatch();
 
   const onDrop = useCallback(
     (acceptedFiles: File[], rejectedFiles: FileRejection[]) => {
+      const parse = (file: File): boolean => {
+        file.arrayBuffer().then((arrayBuffer) => {
+          const byteArray = new Uint8Array(arrayBuffer);
+          try {
+            const dataSet = dicomParser.parseDicom(byteArray /*, options */);
+            const studyInstanceUid = dataSet.string(STUDY_INSTACE_UID_CODE);
+            if (
+              studyUid.current !== studyInstanceUid &&
+              studyUid.current === ""
+            ) {
+              studyUid.current = studyInstanceUid;
+            } else {
+              alert(
+                "Files studyInstanceUid doesn't match. Files will be reset!"
+              );
+              resetStudyUid(studyUid, localDispatch);
+              return false;
+            }
+
+            const modality = dataSet.string(MODALITY_CODE);
+
+            if (modality === "RTSTRUCT") {
+              let array = Array<string | undefined>();
+              dataSet.elements[REGION_TYPES_LIST_CODE].items?.forEach(
+                (item) => {
+                  array.push(item.dataSet?.string(REGION_TYPE_CODE));
+                }
+              );
+              globalDispatch(setRegionTypes(array));
+            }
+
+            localDispatch({ type: modality, payload: file });
+          } catch (ex) {
+            console.log("Error parsing byte stream", ex);
+          }
+        });
+        return true;
+      };
+
       acceptedFiles.every((file) => {
         return parse(file);
       });
@@ -62,37 +114,13 @@ export default function Upload() {
             rejectedFiles.map((fileWrapper) => `\n${fileWrapper.file.name}`)
         );
     },
-    []
+    [globalDispatch]
   );
+
   const { getRootProps, getInputProps } = useDropzone({
     onDrop,
     accept: ".dcm",
   });
-
-  const parse = (file: File): boolean => {
-    file.arrayBuffer().then((arrayBuffer) => {
-      const byteArray = new Uint8Array(arrayBuffer);
-
-      try {
-        const dataSet = dicomParser.parseDicom(byteArray /*, options */);
-        const studyInstanceUid = dataSet.string("x0020000d");
-        if (studyUid.current !== studyInstanceUid) {
-          if (studyUid.current === "") studyUid.current = studyInstanceUid;
-          else {
-            alert("Files studyInstanceUid doesn't match. Files will be reset!");
-            dispatch({ type: ActionType.RESET });
-            studyUid.current = "";
-            return false;
-          }
-        }
-        const modality = dataSet.string("x00080060");
-        dispatch({ type: modality, payload: file });
-      } catch (ex) {
-        console.log("Error parsing byte stream", ex);
-      }
-    });
-    return true;
-  };
 
   const zipAndUpload = () => {
     setShowProgress(true);
@@ -110,14 +138,20 @@ export default function Upload() {
       axios
         .post(process.env.REACT_APP_UPLOAD_URL!, formData)
         .then((response) => {
-          dispatch({ type: ActionType.RESET });
+          localDispatch({ type: ActionType.RESET });
           setShowProgress(false);
-          _dispatch(setUploadedFiels(true));
+          globalDispatch(setUploadedFiels(true));
           alert(response.data);
         })
         .catch((error) => {
+          //TODO left for test purposes
+          //remove:
+          localDispatch({ type: ActionType.RESET });
           setShowProgress(false);
-          alert(error);
+          globalDispatch(setUploadedFiels(true));
+          //uncomment:
+          // setShowProgress(false);
+          // alert(error);
         });
     });
   };
