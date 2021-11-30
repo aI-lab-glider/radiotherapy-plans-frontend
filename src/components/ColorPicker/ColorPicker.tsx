@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 
 import { ColorResult, RGBColor, SketchPicker } from "react-color";
-import styled from "styled-components";
+import { ColorBox, PickerFrame } from "./ColorPicker.style";
 
 interface ColorPickerProps {
   regionId: string;
@@ -13,22 +13,6 @@ export default function ColorPicker(props: ColorPickerProps) {
   const [display, setDisplay] = useState(false);
   const [color, setColor] = useState(props.color);
 
-  const PickerFrame = styled.div`
-    padding: 5px;
-    background: #fff;
-    border-radius: 1px;
-    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1);
-    display: inline-block;
-    cursor: pointer;
-  `;
-
-  const ColorBox = styled.div`
-    width: 36px;
-    height: 14px;
-    border-radius: 2px;
-    background: rgba(${color.r}, ${color.g}, ${color.b}, ${color.a});
-  `;
-
   const handleClick = () => {
     display && props.onChange(props.regionId, color);
     setDisplay(!display);
@@ -37,7 +21,12 @@ export default function ColorPicker(props: ColorPickerProps) {
   return (
     <div>
       <PickerFrame onClick={handleClick}>
-        <ColorBox />
+        <ColorBox
+          red={color.r}
+          green={color.g}
+          blue={color.b}
+          opacity={Number(color.a)}
+        />
       </PickerFrame>
 
       {display ? (

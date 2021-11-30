@@ -13,12 +13,12 @@ import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import Box from "@mui/material/Box";
-import ThreeCanvas from "./components/ThreeCanvas";
-import DVH from "./components/DVH";
+import ThreeCanvas from "./components/ThreeCanvas/ThreeCanvas";
+import DVH from "./components/DVH/DVH";
 import Upload from "./components/Upload";
-import DrawerToolbar from "./components/DrawerToolbar";
+import DrawerToolbar from "./components/DrawerToolbar/DrawerToolbar";
 import { UploadState } from "./reducers/uploadReducer";
-import { TabPanel, a11yProps } from "./components/TabPanel";
+import { TabPanel, a11yProps } from "./components/TabPanel/TabPanel";
 
 const drawerWidth = 360;
 const appBarHeight = 60;

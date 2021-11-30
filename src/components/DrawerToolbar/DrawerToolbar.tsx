@@ -3,10 +3,10 @@ import { useDispatch, useSelector } from "react-redux";
 import { makeStyles, Theme, createStyles } from "@material-ui/core/styles";
 import Divider from "@material-ui/core/Divider";
 import Button from "@material-ui/core/Button";
-import BasicSettings from "./BasicSettings";
-import RegionSettings from "./RegionSettings";
-import { setUploadedFiels } from "../actions/uploadActions";
-import { UploadState } from "../reducers/uploadReducer";
+import BasicSettings from "../BasicSettings/BasicSettings";
+import RegionSettings from "../RegionSettings/RegionSettings";
+import { setUploadedFiels } from "../../actions/uploadActions";
+import { UploadState } from "../../reducers/uploadReducer";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({

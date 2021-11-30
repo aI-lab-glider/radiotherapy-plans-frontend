@@ -3,16 +3,22 @@ import { v4 as uuidv4 } from "uuid";
 import Grid from "@material-ui/core/Grid";
 import Typography from "@material-ui/core/Typography";
 import Button from "@material-ui/core/Button";
-import Card from "@material-ui/core/Card";
 import CardActions from "@material-ui/core/CardActions";
 import CardContent from "@material-ui/core/CardContent";
 import MenuItem from "@material-ui/core/MenuItem";
 import FormControl from "@material-ui/core/FormControl";
 import Select from "@material-ui/core/Select";
 import { Slider } from "@material-ui/core";
-import ColorPicker from "./ColorPicker";
+import ColorPicker from "../ColorPicker/ColorPicker";
 import { RGBColor } from "react-color";
-import styled from "styled-components";
+import {
+  RegionSettingsDiv,
+  RegionSettingCard,
+  RegionTitle,
+  RegionName,
+  RegionProperty,
+  RegionPropertiesGrid,
+} from "./RegionSettings.style";
 
 interface Region {
   id: string;
@@ -86,35 +92,6 @@ export default function RegionSettings(props: RegionSettingsProps) {
     );
     setRegions(newRegions);
   }
-
-  const RegionSettingsDiv = styled.div`
-    width: 320px;
-    padding: 20px;
-  `;
-
-  const RegionSettingCard = styled(Card)`
-    margin-bottom: 10px;
-  `;
-
-  const RegionTitle = styled.h1`
-    margin-top: 4px;
-    font-size: 1em;
-    font-weight: bold;
-  `;
-
-  const RegionName = styled.h1`
-    margin-top: 4px;
-    font-size: 1em;
-  `;
-
-  const RegionProperty = styled.h1`
-    font-size: 1em;
-    font-weight: bold;
-  `;
-
-  const RegionPropertiesGrid = styled(Grid)`
-    margin-top: 10px;
-  `;
 
   return (
     <RegionSettingsDiv>

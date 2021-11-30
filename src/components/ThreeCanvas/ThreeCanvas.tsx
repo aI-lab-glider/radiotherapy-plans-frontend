@@ -1,8 +1,8 @@
 import { Html, OrbitControls } from "@react-three/drei";
-import { Canvas, useLoader } from "@react-three/fiber";
+import { useLoader } from "@react-three/fiber";
 import { Suspense, useEffect, useState } from "react";
-import styled from "styled-components";
 import { OBJLoader } from "three/examples/jsm/loaders/OBJLoader";
+import StyledCanvas from "./ThreeCanvas.style";
 
 const Loader = () => {
   return (
@@ -41,14 +41,10 @@ export default function ThreeCanvas({ appBarHeight }: ThreeCanvasProps) {
     };
   });
 
-  const StyledCanvas = styled(Canvas)`
-    background-color: #333333;
-    width: ${dimensions.width}px;
-    height: ${dimensions.height - appBarHeight}px;
-  `;
-
   return (
     <StyledCanvas
+      dimensions={{ width: dimensions.width, height: dimensions.height }}
+      appBarHeight={appBarHeight}
       style={{
         height: `${dimensions.height - appBarHeight}px`,
       }}
