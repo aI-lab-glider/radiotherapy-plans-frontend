@@ -24,7 +24,7 @@ interface Region {
 
 interface RegionSettingsProps {
   regions: Array<Region>;
-  selectableRegions: Array<string | undefined>;
+  selectableRegions: Array<string>;
 }
 
 export default function RegionSettings(props: RegionSettingsProps) {

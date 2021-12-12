@@ -15,7 +15,7 @@ import Tab from "@mui/material/Tab";
 import Box from "@mui/material/Box";
 import ThreeCanvas from "./components/ThreeCanvas";
 import DVH from "./components/DVH";
-import Upload from "./components/Upload";
+import Upload from "./components/Upload/Upload";
 import DrawerToolbar from "./components/DrawerToolbar";
 import { UploadState } from "./reducers/uploadReducer";
 import { TabPanel, a11yProps } from "./components/TabPanel";
@@ -142,8 +142,8 @@ export default function App() {
         </div>
         <Divider />
         {isFileUploaded ? (
-          <Box>
-            <Box>
+          <Box component="div">
+            <Box component="div">
               <Tabs
                 value={tabIndex}
                 onChange={handleTabChange}

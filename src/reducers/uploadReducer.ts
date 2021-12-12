@@ -2,7 +2,7 @@ import { AnyAction } from "redux";
 
 export interface UploadState {
   isFileUploaded: boolean;
-  regionTypes: Array<string | undefined>;
+  regionTypes: Array<string>;
 }
 
 export const initialState: UploadState = {
