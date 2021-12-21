@@ -1,24 +1,24 @@
+import AppBar from "@material-ui/core/AppBar";
+import Divider from "@material-ui/core/Divider";
+import Drawer from "@material-ui/core/Drawer";
+import IconButton from "@material-ui/core/IconButton";
+import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
+import Header from "@material-ui/core/Toolbar";
+import Typography from "@material-ui/core/Typography";
+import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
+import MenuIcon from "@material-ui/icons/Menu";
+import Box from "@mui/material/Box";
+import Tab from "@mui/material/Tab";
+import Tabs from "@mui/material/Tabs";
+import clsx from "clsx";
 import React from "react";
 import { useSelector } from "react-redux";
-import clsx from "clsx";
-import { makeStyles, Theme, createStyles } from "@material-ui/core/styles";
-import Drawer from "@material-ui/core/Drawer";
-import AppBar from "@material-ui/core/AppBar";
-import Toolbar from "@material-ui/core/Toolbar";
-import Typography from "@material-ui/core/Typography";
-import Divider from "@material-ui/core/Divider";
-import IconButton from "@material-ui/core/IconButton";
-import MenuIcon from "@material-ui/icons/Menu";
-import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
-import Tabs from "@mui/material/Tabs";
-import Tab from "@mui/material/Tab";
-import Box from "@mui/material/Box";
-import ThreeCanvas from "./components/ThreeCanvas";
+import Toolbar from "./components/DrawerToolbar";
 import DVH from "./components/DVH";
-import Upload from "./components/Upload";
-import DrawerToolbar from "./components/DrawerToolbar";
+import { a11yProps, TabPanel } from "./components/TabPanel";
+import { MeshWizard } from "./components/uploadComponent/MeshWizard";
 import { UploadState } from "./reducers/uploadReducer";
-import { TabPanel, a11yProps } from "./components/TabPanel";
+import { ThreeCanvas } from "./components/canvas/ThreeCanvas"
 
 const drawerWidth = 360;
 const appBarHeight = 60;
@@ -86,7 +86,7 @@ export default function App() {
     DVH: 1,
   };
 
-  const isFileUploaded = useSelector(
+  const AreFilesUploaded = useSelector(
     (state: UploadState) => state.isFileUploaded
   );
 
@@ -110,7 +110,7 @@ export default function App() {
           [classes.appBarShift]: open,
         })}
       >
-        <Toolbar>
+        <Header>
           <IconButton
             color="inherit"
             aria-label="open drawer"
@@ -123,7 +123,7 @@ export default function App() {
           <Typography variant="h6" noWrap>
             Radiotherapy plans
           </Typography>
-        </Toolbar>
+        </Header>
       </AppBar>
 
       <Drawer
@@ -141,13 +141,12 @@ export default function App() {
           </IconButton>
         </div>
         <Divider />
-        {isFileUploaded ? (
+        {AreFilesUploaded ? (
           <Box>
             <Box>
               <Tabs
                 value={tabIndex}
                 onChange={handleTabChange}
-                aria-label="basic tabs example"
                 centered
               >
                 <Tab label="Visualization" {...a11yProps(TABS.VISUALIZATION)} />
@@ -155,14 +154,14 @@ export default function App() {
               </Tabs>
             </Box>
             <TabPanel value={tabIndex} index={TABS.VISUALIZATION}>
-              <DrawerToolbar />
+              <Toolbar />
             </TabPanel>
             <TabPanel value={tabIndex} index={TABS.DVH}>
               DVH of the structures
             </TabPanel>
           </Box>
         ) : (
-          <Upload />
+          <MeshWizard />
         )}
       </Drawer>
 

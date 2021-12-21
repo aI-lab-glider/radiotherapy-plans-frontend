@@ -1,5 +1,11 @@
 import { createAction } from "@reduxjs/toolkit";
 
-export const setUploadedFiels = createAction<boolean>("uploaded");
+
 export const setRegionTypes =
-  createAction<Array<string | undefined>>("regions");
+    createAction<Array<string | undefined>>("regions");
+export interface UploadedFilePayload {
+    isSuccess: boolean;
+    meshFileUrl?: string;
+}
+
+export const setUploadedFiels = createAction<UploadedFilePayload>("uploaded");

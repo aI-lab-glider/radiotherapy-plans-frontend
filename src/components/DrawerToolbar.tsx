@@ -16,7 +16,7 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-const DrawerToolbar = () => {
+const Toolbar = () => {
   const classes = useStyles();
   const dispatch = useDispatch();
   const regions = useSelector((state: UploadState) => state.regionTypes);
@@ -31,7 +31,13 @@ const DrawerToolbar = () => {
         color="secondary"
         variant="contained"
         className={classes.resetButton}
-        onClick={() => dispatch(setUploadedFiels(false))}
+        onClick={() =>
+          dispatch(
+            setUploadedFiels({
+              isSuccess: false,
+            })
+          )
+        }
       >
         Reset Uploaded Files
       </Button>
@@ -39,4 +45,4 @@ const DrawerToolbar = () => {
   );
 };
 
-export default DrawerToolbar;
+export default Toolbar;
