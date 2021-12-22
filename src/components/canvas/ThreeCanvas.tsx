@@ -35,11 +35,8 @@ export function ThreeCanvas({ appBarHeight }: ThreeCanvasProps) {
   return (
     <>
       <StyledCanvas
-        dimensions={{ width: 100, height: 100 }}
-        appBarHeight={20}
-        style={{
-          height: `${dimensions.height - appBarHeight}px`,
-        }}
+        dimensions={dimensions}
+        appBarHeight={appBarHeight}
         camera={{ position: [-1, -1, -1], far: 2000 }}
       >
         <axesHelper args={[1000]} />

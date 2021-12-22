@@ -10,7 +10,5 @@ interface SCanvasProps extends Props {
 
 export const StyledCanvas = styled(Canvas)<SCanvasProps>`
   background-color: #333333;
-  width: ${({ dimensions }) => dimensions.width}px;
-  height: ${({ dimensions, appBarHeight }) =>
-    dimensions.height - appBarHeight}px;
+  height: ${({ dimensions, appBarHeight }) => dimensions.height}px!important;
 `;

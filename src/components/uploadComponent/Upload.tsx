@@ -4,6 +4,8 @@ import dicomParser from "dicom-parser";
 import JSZip from "jszip";
 import React, { useCallback, useReducer, useRef, useState } from "react";
 import { FileRejection } from "react-dropzone";
+import { useDispatch } from "react-redux";
+import { setRegionTypes } from "../../actions/uploadActions";
 import { DropzoneComponent } from "./DropzoneComponent";
 import { RequiredFilesListComponents } from "./RequiredFilesListComponents";
 import { CenteredDiv, Progress, SectionCaption } from "./styles";
@@ -32,6 +34,11 @@ interface Action {
   payload?: File;
 }
 
+const STUDY_INSTACE_UID_CODE = "x0020000d";
+const MODALITY_CODE = "x00080060";
+const REGION_TYPES_LIST_CODE = "x30060020";
+const REGION_TYPE_CODE = "x30060026";
+
 function reducer(state: RequiredFiles, action: Action): RequiredFiles {
   switch (action.type) {
     case ActionType.CT:
@@ -55,6 +62,7 @@ export default function Upload({ onUpload }: UploadProps) {
     reducer,
     initialState
   );
+  const dispatch = useDispatch();
   const [showProgress, setShowProgress] = useState(false);
   const studyUid = useRef("");
 
@@ -70,12 +78,21 @@ export default function Upload({ onUpload }: UploadProps) {
     []
   );
 
+  const parseRegions = (dataSet: dicomParser.DataSet) => {
+    let array = [] as string[];
+    dataSet.elements[REGION_TYPES_LIST_CODE].items?.forEach((item) => {
+      const regionType = item.dataSet?.string(REGION_TYPE_CODE);
+      if (typeof regionType !== "undefined") array.push(regionType);
+    });
+    dispatch(setRegionTypes(array));
+  };
+
   const parse = (file: File): boolean => {
     file.arrayBuffer().then((arrayBuffer) => {
       const byteArray = new Uint8Array(arrayBuffer);
       try {
         const dataSet = dicomParser.parseDicom(byteArray);
-        const studyInstanceUid = dataSet.string("x0020000d");
+        const studyInstanceUid = dataSet.string(STUDY_INSTACE_UID_CODE);
         if (studyUid.current !== studyInstanceUid) {
           if (studyUid.current === "") studyUid.current = studyInstanceUid;
           else {
@@ -85,8 +102,12 @@ export default function Upload({ onUpload }: UploadProps) {
             return false;
           }
         }
-        const modality = dataSet.string("x00080060");
+        const modality = dataSet.string(MODALITY_CODE);
         requiredFilesDispatch({ type: modality, payload: file });
+
+        if (modality === "RTSTRUCT") {
+          parseRegions(dataSet);
+        }
       } catch (ex) {
         console.log("Error parsing byte stream", ex);
       }
