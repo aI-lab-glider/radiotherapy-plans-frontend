@@ -8,7 +8,7 @@ import { useDispatch } from "react-redux";
 import { setRegionTypes } from "../../actions/uploadActions";
 import { DropzoneComponent } from "./DropzoneComponent";
 import { RequiredFilesListComponents } from "./RequiredFilesListComponents";
-import { CenteredDiv, Progress, SectionCaption } from "./styles";
+import { Progress } from "./styles";
 
 export interface RequiredFiles {
   ctFiles: File[];
@@ -78,8 +78,10 @@ export default function Upload({ onUpload }: UploadProps) {
     []
   );
 
+  // TODO: remove
   const parseRegions = (dataSet: dicomParser.DataSet) => {
     let array = [] as string[];
+
     dataSet.elements[REGION_TYPES_LIST_CODE].items?.forEach((item) => {
       const regionType = item.dataSet?.string(REGION_TYPE_CODE);
       if (typeof regionType !== "undefined") array.push(regionType);

@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 
 export interface DicomSelectorProps {
-  onChange: (newSelection?: string) => void;
+  onChange: (meshName: string) => Promise<void> | void;
 }
 
 export function DicomSelector({ onChange }: DicomSelectorProps) {

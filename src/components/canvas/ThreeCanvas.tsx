@@ -29,7 +29,7 @@ function getMeshCenter(group: Group | null): [number, number, number] {
 
 export function ThreeCanvas({ appBarHeight }: ThreeCanvasProps) {
   const dimensions = useResize();
-  const meshFileUrl = useSelector((state: AppState) => state.meshFileUrl);
+  const meshFileUrls = useSelector((state: AppState) => state.meshFileUrls);
 
   const [modelCenter] = useState<[number, number, number]>(ORIGIN);
   return (
@@ -45,7 +45,18 @@ export function ThreeCanvas({ appBarHeight }: ThreeCanvasProps) {
           <pointLight position={[10, 10, 10]} />
           <pointLight position={[-10, -10, -10]} />
           <OrbitControls target={modelCenter} />
-          {meshFileUrl && <Model url={meshFileUrl} />}
+          {meshFileUrls.map((url) => (
+            <>
+              <color
+                args={[
+                  Math.floor(Math.random() * 255),
+                  Math.floor(Math.random() * 255),
+                  Math.floor(Math.random() * 255),
+                ]}
+              />
+              <Model url={url} />
+            </>
+          ))}
         </Suspense>
       </StyledCanvas>
       );
