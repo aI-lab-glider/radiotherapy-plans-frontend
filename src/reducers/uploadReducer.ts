@@ -55,21 +55,25 @@ const uploadReducer = (
       };
 
     case "addSelectedRegion":
-      roiName = action.payload;
-      regionUrl = `${process.env.REACT_APP_API_URL}/CalculateRoi/${state.meshName}?roiName=${roiName}`;
+      const roi = action.payload;
+
+      const urls = ["", "cold", "hot"].map(
+        (type) =>
+          `${process.env.REACT_APP_API_URL}/CalculateRoi/${state.meshName}?roi_name=${roi}&type=${type}`
+      );
 
       return {
         ...state,
-        meshFileUrls: [regionUrl], // TODO: should be multiple regions, that react approperly
+        meshFileUrls: [...state.meshFileUrls, ...urls],
       };
     case "removeSelectedRegion":
       roiName = action.payload;
-      regionUrl = `${process.env.REACT_APP_API_URL}/CalculateRoi/${state.meshName}?roiName=${roiName}`;
+      regionUrl = `${process.env.REACT_APP_API_URL}/CalculateRoi/${state.meshName}?roi_name=${roiName}`;
 
       return {
         ...state,
         meshFileUrls: state.meshFileUrls.filter(
-          (url) => url !== action.payload
+          (url) => !url.includes(action.payload)
         ),
       };
     default:

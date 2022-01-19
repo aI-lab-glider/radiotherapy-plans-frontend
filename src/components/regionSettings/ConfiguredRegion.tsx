@@ -6,4 +6,5 @@ export interface RegionConfiguration {
   transparency: number;
   color: RGBColor;
   activated: boolean;
+  hotColdValue: number;
 }

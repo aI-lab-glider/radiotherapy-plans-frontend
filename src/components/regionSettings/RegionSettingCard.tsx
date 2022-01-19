@@ -1,13 +1,19 @@
-import { Grid } from "@material-ui/core";
+import { Grid, TextField } from "@material-ui/core";
 import Button from "@material-ui/core/Button";
 import CardActions from "@material-ui/core/CardActions";
 import CardContent from "@material-ui/core/CardContent";
 import FormControl from "@material-ui/core/FormControl";
 import MenuItem from "@material-ui/core/MenuItem";
 import Select from "@material-ui/core/Select";
-import React from "react";
+import React, { useState } from "react";
 import { RegionConfiguration } from "./ConfiguredRegion";
-import { RegionName, RegionTitle, StyledCard } from "./styled";
+import {
+  RegionName,
+  RegionPropertiesGrid,
+  RegionProperty,
+  RegionTitle,
+  StyledCard,
+} from "./styled";
 import { ConfigurationActions } from "./useRegionConfigurations";
 
 interface RegionSettingCardProps {
@@ -16,11 +22,17 @@ interface RegionSettingCardProps {
   actions: ConfigurationActions;
 }
 
+export interface RegionSetting {
+  type?: string;
+  hotColdLevel?: number;
+}
 export function RegionSettingCard({
   availableRegions,
   config,
   actions,
 }: RegionSettingCardProps) {
+  const [cardState, setCardState] = useState<RegionSetting>({});
+
   return (
     <StyledCard variant="outlined">
       <CardContent>
@@ -36,7 +48,10 @@ export function RegionSettingCard({
                 <Select
                   value={config.type}
                   onChange={(e) =>
-                    actions.setType(config.id, e.target.value as string)
+                    setCardState({
+                      ...cardState,
+                      type: e.target.value as string,
+                    })
                   }
                   inputProps={{ "aria-label": "Without label" }}
                 >
@@ -52,17 +67,28 @@ export function RegionSettingCard({
           </Grid>
         </Grid>
 
-        {/* <RegionPropertiesGrid container xs={12} spacing={2}>
-                <Grid item xs={3}>
-                    <RegionProperty>Color</RegionProperty>
-                </Grid>
-                <Grid item xs={3}>
-                    <ColorPicker
-                        color={config.color}
-                        onChange={(color) => actions.setColor(config.id, color)} />
-                </Grid>
-            </RegionPropertiesGrid>
-             */}
+        <RegionPropertiesGrid container xs={12} spacing={2}>
+          <Grid item xs={3}>
+            <RegionProperty>Hot cold level</RegionProperty>
+          </Grid>
+          <Grid item xs={3}>
+            <TextField
+              id="standard-basic"
+              label="Standard"
+              variant="standard"
+              onChange={(e) => {
+                if (!/[0-9]/.test(e.target.value)) {
+                  return;
+                }
+                setCardState({
+                  ...cardState,
+                  hotColdLevel: parseFloat(e.target.value),
+                });
+              }}
+            />
+          </Grid>
+        </RegionPropertiesGrid>
+
         {/* <RegionProperty>Transparency</RegionProperty>
             <Slider
                 value={config.transparency}
@@ -76,6 +102,13 @@ export function RegionSettingCard({
           onClick={() => actions.remove(config.id)}
         >
           Delete
+        </Button>
+        <Button
+          color="secondary"
+          size="small"
+          onClick={() => actions.setType(config.id, cardState)}
+        >
+          Apply
         </Button>
         {/* {config.activated ? (
                 <Button

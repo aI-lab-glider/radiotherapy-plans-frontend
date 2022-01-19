@@ -9,6 +9,7 @@ import {
 } from "../../actions/uploadActions";
 import { AppState } from "../../store";
 import { RegionConfiguration } from "./ConfiguredRegion";
+import { RegionSetting } from "./RegionSettingCard";
 
 export const defaultConfigurationFactory = (id: string) => ({
   type: "None",
@@ -21,7 +22,7 @@ export const defaultConfigurationFactory = (id: string) => ({
 export interface ConfigurationActions {
   activate: (id: string) => void;
   deactivate: (id: string) => void;
-  setType: (id: string, newType: string) => void;
+  setType: (id: string, newType: RegionSetting) => void;
   setTransparency: (id: string, newValue: number) => void;
   setColor: (id: string, newValue: RGBColor) => void;
   remove: (id: string) => void;
@@ -65,7 +66,7 @@ export function useRegionConfigurations(): [
       },
     });
 
-  const setType = (id: string, newType: string) => {
+  const setType = (id: string, newType: RegionSetting) => {
     const oldType = configurations[id].type;
     if (oldType !== defaultConfigurationFactory(id).type) {
       dispatch(removeSelectedRegion(oldType));
@@ -74,12 +75,12 @@ export function useRegionConfigurations(): [
       ...configurations,
       [id]: {
         ...configurations[id],
-        type: newType,
+        ...newType,
       },
     });
 
     // TODO: move to middleware
-    const calculateROIEndpoint = `${process.env.REACT_APP_API_URL}/CalculateRoi/${meshName}?roiName=${newType}`;
+    const calculateROIEndpoint = `${process.env.REACT_APP_API_URL}/CalculateRoi/${meshName}?roi_name=${newType}`;
     axios.post(calculateROIEndpoint).then((response) => {
       if (response.status === 200) {
         dispatch(addSelectedRegion(newType));
