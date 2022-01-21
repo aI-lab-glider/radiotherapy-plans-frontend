@@ -11,12 +11,15 @@ import { AppState } from "../../store";
 import { RegionConfiguration } from "./ConfiguredRegion";
 import { RegionSetting } from "./RegionSettingCard";
 
-export const defaultConfigurationFactory = (id: string) => ({
+export const defaultConfigurationFactory = (
+  id: string
+): RegionConfiguration => ({
   type: "None",
   transparency: 50,
   color: { r: 225, g: 68, b: 13, a: 1 },
   activated: false,
   id: id,
+  hotColdValue: 5,
 });
 
 export interface ConfigurationActions {
@@ -80,10 +83,10 @@ export function useRegionConfigurations(): [
     });
 
     // TODO: move to middleware
-    const calculateROIEndpoint = `${process.env.REACT_APP_API_URL}/CalculateRoi/${meshName}?roi_name=${newType}`;
+    const calculateROIEndpoint = `${process.env.REACT_APP_API_URL}/CalculateRoi/${meshName}?roi_name=${newType.type}&hot_cold_level=${newType.hotColdLevel}`;
     axios.post(calculateROIEndpoint).then((response) => {
-      if (response.status === 200) {
-        dispatch(addSelectedRegion(newType));
+      if (response.status === 200 && newType.type) {
+        dispatch(addSelectedRegion(newType.type));
       }
     });
   };

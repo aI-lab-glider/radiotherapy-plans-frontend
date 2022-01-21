@@ -1,4 +1,4 @@
-import { Button, CircularProgress } from "@material-ui/core";
+import { Button, CircularProgress, Grid, TextField } from "@material-ui/core";
 import axios from "axios";
 import dicomParser from "dicom-parser";
 import JSZip from "jszip";
@@ -6,9 +6,10 @@ import React, { useCallback, useReducer, useRef, useState } from "react";
 import { FileRejection } from "react-dropzone";
 import { useDispatch } from "react-redux";
 import { setRegionTypes } from "../../actions/uploadActions";
+import { RegionProperty } from "../regionSettings/styled";
 import { DropzoneComponent } from "./DropzoneComponent";
 import { RequiredFilesListComponents } from "./RequiredFilesListComponents";
-import { Progress } from "./styles";
+import { Progress, SectionCaption } from "./styles";
 
 export interface RequiredFiles {
   ctFiles: File[];
@@ -117,6 +118,8 @@ export default function Upload({ onUpload }: UploadProps) {
     return true;
   };
 
+  const [meshName, setMeshName] = useState<string>("");
+
   const zipAndUpload = () => {
     setShowProgress(true);
     const zip = new JSZip();
@@ -129,13 +132,12 @@ export default function Upload({ onUpload }: UploadProps) {
 
     zip.generateAsync({ type: "blob" }).then((file) => {
       const formData = new FormData();
-      const fileName = "archive";
-      formData.append("file", file, `${fileName}.zip`);
+      formData.append("file", file, `${meshName}.zip`);
       axios
         .post(`${process.env.REACT_APP_API_URL!}/Upload`, formData)
         .then(() => {
           requiredFilesDispatch({ type: ActionType.RESET });
-          onUpload(fileName);
+          onUpload(meshName);
         })
         .finally(() => setShowProgress(false));
     });
@@ -145,11 +147,23 @@ export default function Upload({ onUpload }: UploadProps) {
     <>
       <RequiredFilesListComponents requiredFiles={requiredFiles} />
       <DropzoneComponent onDrop={onDrop} />
+      <SectionCaption variant="h6">Mesh name</SectionCaption>
+
+      <TextField
+        id="standard-basic"
+        label="Name"
+        variant="standard"
+        value={meshName}
+        onChange={(e) => {
+          setMeshName(e.target.value as string);
+        }}
+      />
       <Progress>{showProgress && <CircularProgress />}</Progress>
       <Button
-        disabled={Object.values(requiredFiles).some(
-          (files) => files.length === 0
-        )}
+        disabled={
+          Object.values(requiredFiles).some((files) => files.length === 0) ||
+          !meshName
+        }
         variant="contained"
         onClick={zipAndUpload}
         style={{ marginLeft: 20, marginRight: 20 }}

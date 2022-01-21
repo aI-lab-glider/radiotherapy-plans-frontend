@@ -1,4 +1,5 @@
 import { UploadedFilePayload } from "../actions/uploadActions";
+import { RegionSetting } from "../components/regionSettings/RegionSettingCard";
 
 export interface UploadState {
   isFileUploaded: boolean;
@@ -49,7 +50,7 @@ const uploadReducer = (
       const mainMeshUrl = `${url}?meshName=${action.payload.meshName}`;
       return {
         ...state,
-        meshFileUrls: [mainMeshUrl],
+        meshFileUrls: action.payload.isSuccess ? [mainMeshUrl] : [],
         isFileUploaded: action.payload.isSuccess,
         meshName: action.payload.meshName ?? "",
       };

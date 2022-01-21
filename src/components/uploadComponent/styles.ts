@@ -12,7 +12,7 @@ export const CenteredDiv = styled.div`
 `;
 
 export const SectionCaption = styled(Typography)`
-  margin: 20px 0px;
+  margin: 0px 0px;
 `;
 export const CenteredTypography = styled(Typography)`
   text-align: center;

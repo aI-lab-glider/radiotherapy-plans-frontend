@@ -31,55 +31,53 @@ export function RegionSettingCard({
   config,
   actions,
 }: RegionSettingCardProps) {
-  const [cardState, setCardState] = useState<RegionSetting>({});
+  const [cardState, setCardState] = useState<RegionSetting>({
+    type: config.type,
+    hotColdLevel: config.hotColdValue,
+  });
 
   return (
     <StyledCard variant="outlined">
       <CardContent>
         <Grid container xs={12} spacing={2}>
-          <Grid item xs={3}>
+          <Grid item xs={6}>
             <RegionTitle>Region:&nbsp;</RegionTitle>
           </Grid>
-          <Grid item xs={3}>
-            {config.activated ? (
-              <RegionName>{config.type}</RegionName>
-            ) : (
-              <FormControl>
-                <Select
-                  value={config.type}
-                  onChange={(e) =>
-                    setCardState({
-                      ...cardState,
-                      type: e.target.value as string,
-                    })
-                  }
-                  inputProps={{ "aria-label": "Without label" }}
-                >
-                  <MenuItem value="None">
-                    <em>None</em>
-                  </MenuItem>
-                  {availableRegions.map((x) => (
-                    <MenuItem value={x}>{x}</MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            )}
+          <Grid item xs={6}>
+            <FormControl>
+              <Select
+                value={cardState.type}
+                onChange={(e) =>
+                  setCardState({
+                    ...cardState,
+                    type: e.target.value as string,
+                  })
+                }
+                inputProps={{ "aria-label": "Without label" }}
+              >
+                <MenuItem value="None">
+                  <em>None</em>
+                </MenuItem>
+                {availableRegions.map((x) => (
+                  <MenuItem value={x}>{x}</MenuItem>
+                ))}
+              </Select>
+            </FormControl>
           </Grid>
         </Grid>
 
         <RegionPropertiesGrid container xs={12} spacing={2}>
-          <Grid item xs={3}>
+          <Grid item xs={6}>
             <RegionProperty>Hot cold level</RegionProperty>
           </Grid>
-          <Grid item xs={3}>
+          <Grid item xs={6}>
             <TextField
               id="standard-basic"
-              label="Standard"
+              label="hot cold value"
               variant="standard"
+              type="number"
+              value={cardState.hotColdLevel}
               onChange={(e) => {
-                if (!/[0-9]/.test(e.target.value)) {
-                  return;
-                }
                 setCardState({
                   ...cardState,
                   hotColdLevel: parseFloat(e.target.value),
