@@ -14,12 +14,11 @@ export default function RegionSettings({ regions }: RegionSettingsProps) {
 
   return (
     <RegionSettingsDiv>
-      <Typography>
-        <h2>Region Settings</h2>
-      </Typography>
+      <Typography variant="h6">Region Settings</Typography>
       <div>
         {Object.values(configurations).map((configuration) => (
           <RegionSettingCard
+            key={configuration.id}
             config={configuration}
             actions={actions}
             availableRegions={regions}

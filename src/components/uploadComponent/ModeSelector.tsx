@@ -16,7 +16,9 @@ export function ModeSelector({ onChange }: ModelSelectorProps) {
         defaultValue={MeshWizardMode.Selection}
       >
         {Object.entries(MeshWizardMode).map(([key, value]) => (
-          <MenuItem value={value}>{key}</MenuItem>
+          <MenuItem key={key} value={value}>
+            {key}
+          </MenuItem>
         ))}
       </Select>
     </FormControl>

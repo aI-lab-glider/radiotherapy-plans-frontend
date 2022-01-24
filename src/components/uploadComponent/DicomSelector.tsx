@@ -25,7 +25,9 @@ export function DicomSelector({ onChange }: DicomSelectorProps) {
         onChange={(event) => onChange(event.target.value as string)}
       >
         {meshesNames.map((meshName) => (
-          <MenuItem value={meshName}>{meshName}</MenuItem>
+          <MenuItem key={meshName} value={meshName}>
+            {meshName}
+          </MenuItem>
         ))}
       </Select>
     </FormControl>

@@ -19,8 +19,6 @@ const Toolbar = () => {
   const classes = useStyles();
   const dispatch = useDispatch();
   const regions = useSelector((state: UploadState) => state.regionTypes);
-
-  console.log(regions);
   return (
     <>
       <RegionSettings regions={regions} />
