@@ -1,40 +1,36 @@
+import AppBar from "@material-ui/core/AppBar";
+import Divider from "@material-ui/core/Divider";
+import Drawer from "@material-ui/core/Drawer";
+import IconButton from "@material-ui/core/IconButton";
+import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
+import Header from "@material-ui/core/Toolbar";
+import Typography from "@material-ui/core/Typography";
+import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
+import MenuIcon from "@material-ui/icons/Menu";
+import clsx from "clsx";
 import React from "react";
 import { useSelector } from "react-redux";
-import clsx from "clsx";
-import { makeStyles, Theme, createStyles } from "@material-ui/core/styles";
-import Drawer from "@material-ui/core/Drawer";
-import AppBar from "@material-ui/core/AppBar";
-import Toolbar from "@material-ui/core/Toolbar";
-import Typography from "@material-ui/core/Typography";
-import Divider from "@material-ui/core/Divider";
-import IconButton from "@material-ui/core/IconButton";
-import MenuIcon from "@material-ui/icons/Menu";
-import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
-import Tabs from "@mui/material/Tabs";
-import Tab from "@mui/material/Tab";
-import Box from "@mui/material/Box";
-import ThreeCanvas from "./components/ThreeCanvas";
 import DVH from "./components/DVH";
-import Upload from "./components/Upload";
-import DrawerToolbar from "./components/DrawerToolbar";
+import { MeshWizard } from "./components/uploadComponent/MeshWizard";
 import { UploadState } from "./reducers/uploadReducer";
-import { TabPanel, a11yProps } from "./components/TabPanel";
+import { ThreeCanvas } from "./components/canvas/ThreeCanvas";
+import { DrawerTabs, TabsIdxs } from "./DrawerTabs";
 
-const drawerWidth = 360;
-const appBarHeight = 60;
+export const DRAWER_WIDTH = 400;
+export const APP_BAR_HEIGHT = 60;
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     appBar: {
-      height: appBarHeight,
+      height: APP_BAR_HEIGHT,
       transition: theme.transitions.create(["margin", "width"], {
         easing: theme.transitions.easing.sharp,
         duration: theme.transitions.duration.leavingScreen,
       }),
     },
     appBarShift: {
-      width: `calc(100% - ${drawerWidth}px)`,
-      marginLeft: drawerWidth,
+      width: `calc(100% - ${DRAWER_WIDTH}px)`,
+      marginLeft: DRAWER_WIDTH,
       transition: theme.transitions.create(["margin", "width"], {
         easing: theme.transitions.easing.easeOut,
         duration: theme.transitions.duration.enteringScreen,
@@ -43,7 +39,7 @@ const useStyles = makeStyles((theme: Theme) =>
     header: {
       display: "flex",
       alignItems: "center",
-      height: appBarHeight,
+      height: APP_BAR_HEIGHT,
       justifyContent: "flex-end",
     },
     menuButton: {
@@ -53,11 +49,11 @@ const useStyles = makeStyles((theme: Theme) =>
       display: "none",
     },
     drawer: {
-      width: drawerWidth,
+      width: DRAWER_WIDTH,
       flexShrink: 0,
     },
     drawerPaper: {
-      width: drawerWidth,
+      width: DRAWER_WIDTH,
     },
     content: {
       flexGrow: 1,
@@ -65,7 +61,7 @@ const useStyles = makeStyles((theme: Theme) =>
         easing: theme.transitions.easing.sharp,
         duration: theme.transitions.duration.leavingScreen,
       }),
-      marginLeft: -drawerWidth,
+      marginLeft: -DRAWER_WIDTH,
     },
     contentShift: {
       transition: theme.transitions.create("margin", {
@@ -81,12 +77,8 @@ export default function App() {
   const classes = useStyles();
   const [open, setOpen] = React.useState(true);
   const [tabIndex, setTabIndex] = React.useState(0);
-  const TABS = {
-    VISUALIZATION: 0,
-    DVH: 1,
-  };
 
-  const isFileUploaded = useSelector(
+  const AreFilesUploaded = useSelector(
     (state: UploadState) => state.isFileUploaded
   );
 
@@ -103,14 +95,14 @@ export default function App() {
   };
 
   return (
-    <div>
+    <>
       <AppBar
         position="fixed"
         className={clsx(classes.appBar, {
           [classes.appBarShift]: open,
         })}
       >
-        <Toolbar>
+        <Header>
           <IconButton
             color="inherit"
             aria-label="open drawer"
@@ -123,7 +115,7 @@ export default function App() {
           <Typography variant="h6" noWrap>
             Radiotherapy plans
           </Typography>
-        </Toolbar>
+        </Header>
       </AppBar>
 
       <Drawer
@@ -141,36 +133,17 @@ export default function App() {
           </IconButton>
         </div>
         <Divider />
-        {isFileUploaded ? (
-          <Box>
-            <Box>
-              <Tabs
-                value={tabIndex}
-                onChange={handleTabChange}
-                aria-label="basic tabs example"
-                centered
-              >
-                <Tab label="Visualization" {...a11yProps(TABS.VISUALIZATION)} />
-                <Tab label="DVH" {...a11yProps(TABS.DVH)} />
-              </Tabs>
-            </Box>
-            <TabPanel value={tabIndex} index={TABS.VISUALIZATION}>
-              <DrawerToolbar />
-            </TabPanel>
-            <TabPanel value={tabIndex} index={TABS.DVH}>
-              DVH of the structures
-            </TabPanel>
-          </Box>
+        {AreFilesUploaded ? (
+          <DrawerTabs onChange={handleTabChange} tabIndex={tabIndex} />
         ) : (
-          <Upload />
+          <MeshWizard />
         )}
       </Drawer>
 
-      <div className={classes.header} />
-      {tabIndex === TABS.VISUALIZATION && (
-        <ThreeCanvas appBarHeight={appBarHeight} />
+      {tabIndex === TabsIdxs.Mesh && (
+        <ThreeCanvas appBarHeight={APP_BAR_HEIGHT} />
       )}
-      {tabIndex === TABS.DVH && <DVH />}
-    </div>
+      {tabIndex === TabsIdxs.DVH && <DVH />}
+    </>
   );
 }

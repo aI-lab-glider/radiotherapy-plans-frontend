@@ -7,14 +7,14 @@ import RemoveIcon from "@material-ui/icons/Remove";
 import ContinuousSlider from "./Slider";
 import styled from "styled-components";
 
-export default function BasicSettings() {
-  const BasicSettingsDiv = styled.div`
-    width: 320px;
-    padding: 20px;
-  `;
+const Wrapper = styled.div`
+  width: 320px;
+  padding: 20px;
+`;
 
+export default function BasicSettings() {
   return (
-    <BasicSettingsDiv>
+    <Wrapper>
       <Typography>
         <h2>Basic Settings</h2>
       </Typography>
@@ -28,6 +28,6 @@ export default function BasicSettings() {
         leftIcon={<RemoveIcon />}
         rightIcon={<AddIcon />}
       />
-    </BasicSettingsDiv>
+    </Wrapper>
   );
 }

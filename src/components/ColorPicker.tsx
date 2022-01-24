@@ -4,14 +4,16 @@ import { ColorResult, RGBColor, SketchPicker } from "react-color";
 import styled from "styled-components";
 
 interface ColorPickerProps {
-  regionId: string;
   color: RGBColor;
-  onChange: (id: string, color: RGBColor) => void;
+  onChange: (color: RGBColor) => void;
 }
 
-export default function ColorPicker(props: ColorPickerProps) {
+export default function ColorPicker({
+  color: initialColor,
+  onChange,
+}: ColorPickerProps) {
   const [display, setDisplay] = useState(false);
-  const [color, setColor] = useState(props.color);
+  const [color, setColor] = useState(initialColor);
 
   const PickerFrame = styled.div`
     padding: 5px;
@@ -30,7 +32,7 @@ export default function ColorPicker(props: ColorPickerProps) {
   `;
 
   const handleClick = () => {
-    display && props.onChange(props.regionId, color);
+    display && onChange(color);
     setDisplay(!display);
   };
 
