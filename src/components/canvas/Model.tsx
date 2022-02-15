@@ -12,18 +12,28 @@ interface ModelProps {
 export const Model = forwardRef<Group, ModelProps>(
   ({ url, onMeshChange }, ref) => {
     let color = "#ffffff";
+    let depthTest = true;
+    let opacity = 0.4;
     if (url.includes("cold")) {
-      color = "#ff0000";
+      color = "#ff2222";
+      depthTest = false;
+      opacity = 0.125;
     } else if (url.includes("hot")) {
-      color = "#0000ff";
+      color = "#2222ff";
+      depthTest = false;
+      opacity = 0.125;
     } else if (url.includes("roi_name")) {
-      color = "#00ff00";
+      color = "#22ff22";
+      depthTest = false;
+      opacity = 0.25;
     }
     const mat = new MeshStandardMaterial({
       color,
-      opacity: 0.5,
+      opacity,
       transparent: true,
+      depthTest,
     });
+
 
     return (
       <mesh position={[0, 0, 0]}>
